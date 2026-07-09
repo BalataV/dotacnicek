@@ -34,14 +34,15 @@ function PartInput({ name, value, onChange, suffix, hint, idx }: { name: string;
         {!!hint && <Text style={{ fontFamily: FONTS.body700, fontSize: 12, color: c.muted }}>{hint}</Text>}
       </View>
       <View style={{ position: 'relative', width: 110 }}>
-        <View style={{ position: 'absolute', top: 3, left: 3, right: -3, bottom: -3, backgroundColor: c.ink, borderRadius: 11 }} />
+        <View pointerEvents="none" style={{ position: 'absolute', top: 3, left: 3, right: -3, bottom: -3, backgroundColor: c.ink, borderRadius: 11, zIndex: 0 }} />
         <TextInput
           value={value}
           onChangeText={onChange}
           placeholder="0"
           placeholderTextColor={c.muted}
           keyboardType="numeric"
-          style={{ backgroundColor: c.card, borderWidth: 3, borderColor: c.ink, borderRadius: 11, paddingVertical: 9, paddingLeft: 12, paddingRight: 30, fontFamily: FONTS.display700, fontSize: 16, color: c.ink, textAlign: 'right' }}
+          maxLength={9}
+          style={{ position: 'relative', zIndex: 1, backgroundColor: c.card, borderWidth: 3, borderColor: c.ink, borderRadius: 11, paddingVertical: 9, paddingLeft: 12, paddingRight: 30, fontFamily: FONTS.display700, fontSize: 16, color: c.ink, textAlign: 'right' }}
         />
         <Text style={{ position: 'absolute', right: 10, top: 11, fontFamily: FONTS.display700, fontSize: 13, color: c.muted }}>{suffix}</Text>
       </View>

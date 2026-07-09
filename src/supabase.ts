@@ -8,6 +8,7 @@
 // Dokud klíče nevyplníš, appka běží v LOKÁLNÍM režimu (data jen v telefonu).
 
 import 'react-native-url-polyfill/auto';
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
@@ -27,8 +28,10 @@ export const supabase = (isSupabaseConfigured
         storage: AsyncStorage,
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: false, // v mobilní appce řešíme redirect ručně
-        flowType: 'pkce', // bezpečný OAuth flow pro mobilní aplikace
+        // Na webu necháme klienta zpracovat návrat z OAuthu z URL (?code=…);
+        // v nativní appce řešíme redirect ručně přes WebBrowser.
+        detectSessionInUrl: Platform.OS === 'web',
+        flowType: 'pkce', // bezpečný OAuth flow
       },
     })
   : null) as SupabaseClient;

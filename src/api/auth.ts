@@ -1,4 +1,5 @@
 // Přihlášení a registrace přes Supabase Auth
+import { Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from '../supabase';
@@ -28,8 +29,19 @@ export function onAuthChange(callback: (session: any) => void) {
   return () => data.subscription.unsubscribe();
 }
 
-// Přihlášení Googlem (otevře bezpečné okno prohlížeče)
+// Přihlášení Googlem. Web a nativní appka mají jiný flow:
+//  - WEB: standardní redirect (prohlížeč přejde na Google a vrátí se na tuto stránku;
+//    session zpracuje supabase klient přes detectSessionInUrl po návratu).
+//  - NATIVNÍ: bezpečné okno prohlížeče (WebBrowser) + ruční výměna kódu za session.
 export async function signInWithGoogle() {
+  if (Platform.OS === 'web') {
+    // Vrátit se přesně na tuto stránku (i s podadresářem /dotacnik/app/)
+    const redirectTo = window.location.origin + window.location.pathname;
+    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
+    if (error) throw error;
+    return null; // prohlížeč se teď přesměruje na Google; dál pokračuje po návratu
+  }
+
   const redirectTo = Linking.createURL('auth/callback');
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',

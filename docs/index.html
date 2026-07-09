@@ -151,7 +151,8 @@
           <li><span class="num">2</span><span>Otevři appku a dej <strong>Připojit se do skupiny</strong>.</span></li>
           <li><span class="num">3</span><span>Zadej kód <strong id="codeInline">——————</strong> a hotovo.</span></li>
         </ol>
-        <a id="downloadInvite" class="btn btn-accent" href="#" target="_blank" rel="noopener">⬇️ Stáhnout appku</a>
+        <a id="playInvite" class="btn btn-accent" href="#" target="_blank" rel="noopener">▶️ Stáhnout z Google Play</a>
+        <a id="webInvite" class="btn btn-light" href="#" target="_blank" rel="noopener">🌐 Otevřít webovou verzi (iPhone)</a>
       </div>
     </section>
 
@@ -170,7 +171,8 @@
         </svg></div>
         <h1>Dotačník</h1>
         <p class="lead">Rozděl útraty ve skupině bez hádek a bez počítání na ubrousku.</p>
-        <a id="downloadHome" class="btn btn-accent" href="#" target="_blank" rel="noopener" style="margin-top:20px;">⬇️ Stáhnout appku</a>
+        <a id="playHome" class="btn btn-accent" href="#" target="_blank" rel="noopener" style="margin-top:20px;">▶️ Stáhnout z Google Play</a>
+        <a id="webHome" class="btn btn-light" href="#" target="_blank" rel="noopener">🌐 Otevřít webovou verzi (iPhone)</a>
       </div>
 
       <div class="card">
@@ -187,20 +189,24 @@
   </div>
 
   <script>
-    // === Odkaz „Stáhnout appku" ===
-    // Zatím míří na webovou verzi (funguje na iPhonu i Androidu, jde přidat na plochu).
-    // Až bude appka na Google Play, nahraď tuto adresu odkazem na Play Store.
-    var DOWNLOAD_URL = 'https://balatav.github.io/dotacnik/app/';
+    // === Odkazy na stažení ===
+    // Google Play (Android) + webová verze (iPhone / kdokoli, jde přidat na plochu).
+    // Play odkaz začne fungovat, jakmile appku schválí Google Play.
+    var PLAY_URL = 'https://play.google.com/store/apps/details?id=com.balata.dotacnik';
+    var WEB_URL = 'https://balatav.github.io/dotacnik/app/';
 
     (function () {
       var params = new URLSearchParams(window.location.search);
       var code = (params.get('g') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 
-      // Tlačítka pro stažení
-      var dl = DOWNLOAD_URL || '#';
-      ['downloadInvite', 'downloadHome'].forEach(function (id) {
+      // Tlačítka: Google Play a webová verze
+      ['playInvite', 'playHome'].forEach(function (id) {
         var el = document.getElementById(id);
-        if (el) el.href = dl;
+        if (el) el.href = PLAY_URL;
+      });
+      ['webInvite', 'webHome'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.href = WEB_URL;
       });
 
       if (code) {
