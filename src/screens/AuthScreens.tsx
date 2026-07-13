@@ -22,7 +22,9 @@ function GoogleIcon() {
 export function Onboarding() {
   const c = useColors();
   const { state, actions } = useApp();
-  const showGoogle = !CLOUD_MODE || state.googleEnabled;
+  // Na nativním iOS Google skrýváme: Apple (guideline 4.8) by jinak vyžadoval
+  // i „Sign in with Apple". E-mail login stačí; na Androidu a webu Google zůstává.
+  const showGoogle = (!CLOUD_MODE || state.googleEnabled) && Platform.OS !== 'ios';
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: 28, paddingVertical: 40 }}>
       <View style={{ position: 'relative', marginBottom: 14 }}>

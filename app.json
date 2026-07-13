@@ -9,8 +9,11 @@
     "userInterfaceStyle": "light",
     "backgroundColor": "#FFD60A",
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.balata.dotacnik"
+      "supportsTablet": false,
+      "bundleIdentifier": "com.balata.dotacnik",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.balata.dotacnik",

@@ -78,6 +78,7 @@ Dokončit Google v buildu, vydání do obchodů. Analýza: `ANALYZA.md`.
 - **Oprava textScale:** škálování upravuje VSTUPNÍ props (style pole), ne výsledek renderu – jedině tak funguje na nativní platformě i webu. Ověřeno: 38→45px (large), 38→34px (small).
 - **Hardening:** maxLength na všech vstupech, autoComplete/textContentType u e-mailu a hesel.
 - **Web verze (iOS uživatelé):** `npx expo export --platform web --output-dir docs/app`, `experiments.baseUrl = "/dotacnik/app"` v app.json → hostuje se na GitHub Pages vedle landingu (`https://balatav.github.io/dotacnik/app/`).
+- **App Store (iOS nativně):** návod `store/app-store-guide.md`, screenshoty `store/screenshots-ios/` (1290×2796). V app.json: `supportsTablet:false`, `usesNonExemptEncryption:false`. **Google login je na nativním iOS skrytý** (AuthScreens, guideline 4.8 — jinak by Apple vyžadoval Sign in with Apple; případné doplnění = expo-apple-authentication + Apple provider v Supabase). Store screenshoty (Android i iOS) se generují ze `shots.html` (scratchpad, headless Chrome; parametry `?s=1..5&w=&h=`).
 
 ## Výkon / UX / testy (2026-06)
 - **Jest** (`jest-expo`, `babel.config.js`): `npm test`. Testy `__tests__/logic.test.js` + `money.test.js`. `babel-preset-expo` PŘIPNUTÝ na ~54 (vyšší verze rozbije build SDK 54!).
