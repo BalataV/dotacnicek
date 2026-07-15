@@ -1,9 +1,8 @@
 // Centrální konfigurace veřejných adres (landing page + zásady ochrany údajů).
 //
-// >>> POKUD MÁŠ JINÉ GITHUB UŽIVATELSKÉ JMÉNO, ZMĚŇ JEN TENHLE JEDEN ŘÁDEK <<<
-// Adresa GitHub Pages má tvar: https://<username>.github.io/<nazev-repozitare>
-// (username se píše malými písmeny). Repozitář doporučuju pojmenovat "dotacnicek".
-export const LANDING_BASE = 'https://balatav.github.io/dotacnicek';
+// Vlastní doména — hostováno na GitHub Pages (repo balatav/dotacnicek, složka
+// /docs) s CNAME záznamem. Stará adresa balatav.github.io/dotacnicek přesměruje.
+export const LANDING_BASE = 'https://dotacnicek.cz';
 
 // Odkaz, který se sdílí kamarádům. Landing page z parametru ?g=KÓD
 // pozná pozvánku a nabídne "Otevřít v appce" (deep link dotacnicek://join/KÓD).

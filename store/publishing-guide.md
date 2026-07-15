@@ -53,7 +53,7 @@ Z adresáře `BabisovnikApp`:
 Projdi všechny položky se zeleným zaškrtnutím:
 
 1. **Privacy policy** → vlož URL:
-   `https://balatav.github.io/dotacnicek/privacy.html`
+   `https://dotacnicek.cz/privacy.html`
 2. **App access** → appka **vyžaduje přihlášení**, takže musíš dát recenzentům
    **testovací účet**: vyber „All or some functionality is restricted" a zadej
    testovací e-mail + heslo (založ si v appce jeden účet jen pro Google).

@@ -6,7 +6,7 @@ Postupuj odshora dolů.
 > **Srovnání s Googlem:** Google Play = 25 USD jednorázově. Apple = **99 USD ročně**
 > (Apple Developer Program). Bez toho na App Store nelze publikovat — žádná výjimka.
 > Zdarma alternativa pro iPhone uživatele zůstává webová verze:
-> https://balatav.github.io/dotacnicek/app/
+> https://dotacnicek.cz/app/
 
 ---
 
@@ -91,8 +91,8 @@ V App Store Connect → tvá appka → **App Store** (levé menu) → verze 1.0:
 | Promotional Text (volitelné) | `Kdo komu dluží? Spočítám to za vás. Sorry jako.` |
 | Description | zkopíruj **úplný popis** ze `store/listing-cs.md` (stejný jako pro Google) |
 | Keywords | `dluhy,útraty,skupina,splitwise,výdaje,parta,vyrovnání,účty,dovolená,spolubydlící` |
-| Support URL | `https://balatav.github.io/dotacnicek/` |
-| Marketing URL (volitelné) | `https://balatav.github.io/dotacnicek/` |
+| Support URL | `https://dotacnicek.cz/` |
+| Marketing URL (volitelné) | `https://dotacnicek.cz/` |
 
 ### Screenshoty
 - **iPhone 6,9"**: nahraj 5 souborů ze `store/screenshots-ios/` (1290×2796) —
@@ -100,7 +100,7 @@ V App Store Connect → tvá appka → **App Store** (levé menu) → verze 1.0:
 - iPad sekce se nezobrazí (máme `supportsTablet: false`). ✓
 
 ### App Privacy (obdoba Data safety u Googlu)
-**Privacy Policy URL:** `https://balatav.github.io/dotacnicek/privacy.html`
+**Privacy Policy URL:** `https://dotacnicek.cz/privacy.html`
 
 Klikni **Get Started** u App Privacy a deklaruj (mapování z `store/data-safety.md`):
 

@@ -4,13 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dotačníček — rozděl útraty bez hádek</title>
-  <meta name="description" content="Dotačníček — appka na dělení útrat ve skupinách. Klikni a přidej se do skupiny." />
+  <meta name="description" content="Dotačníček je appka na dělení společných útrat s partou, spolubydlícími i na dovolené. Kdo komu dluží? Spočítá to za vás. Sorry jako." />
 
   <!-- Náhled při sdílení na sociálních sítích / v chatu -->
-  <meta property="og:title" content="Dotačníček — přidej se do skupiny" />
-  <meta property="og:description" content="Někdo tě zve, abys s ním rozdělil útraty. Otevři a přidej se jedním klepnutím." />
+  <meta property="og:title" content="Dotačníček — kdo komu dluží? Spočítám to za vás." />
+  <meta property="og:description" content="Appka na dělení útrat ve skupině. Chytré vyrovnání, fotky účtenek, Audit NKÚ a maskot, který to nečet, ale podepsal." />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://dotacnicek.cz/" />
+  <meta property="og:image" content="https://dotacnicek.cz/img/og.png" />
 
+  <link rel="icon" href="img/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
@@ -26,77 +29,169 @@
       --good: #1FA06A;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
       background: var(--bg);
       color: var(--ink);
       font-family: 'Nunito', system-ui, sans-serif;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 18px 48px;
     }
-    h1, h2, .display { font-family: 'Baloo 2', cursive; }
+    h1, h2, h3, .display { font-family: 'Baloo 2', cursive; }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
 
-    .wrap { width: 100%; max-width: 440px; }
+    .wrap { width: 100%; max-width: 1020px; margin: 0 auto; padding: 0 18px; }
 
     /* Neo-brutalistická karta: 3px okraj + tvrdý posunutý stín */
     .card {
       background: var(--card);
       border: 3px solid var(--ink);
       border-radius: 20px;
-      box-shadow: 5px 5px 0 var(--ink);
+      box-shadow: 6px 6px 0 var(--ink);
       padding: 24px;
-      margin-bottom: 18px;
     }
-
-    .mascot {
-      width: 76px; height: 76px;
-      border-radius: 38px;
-      background: var(--bg);
-      border: 3px solid var(--ink);
-      box-shadow: 4px 4px 0 var(--ink);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 40px;
-      margin: 0 auto 18px;
-    }
-
-    h1 { font-size: 30px; font-weight: 700; text-align: center; letter-spacing: -0.5px; line-height: 1.15; }
-    .lead { text-align: center; color: var(--ink); opacity: 0.7; margin-top: 8px; font-weight: 700; line-height: 1.45; }
-
-    .code-box {
-      background: var(--bg);
-      border: 3px dashed var(--ink);
-      border-radius: 14px;
-      padding: 14px;
-      text-align: center;
-      margin: 18px 0;
-    }
-    .code-box .label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--ink); opacity: 0.6; }
-    .code-box .code { font-family: 'Baloo 2', cursive; font-size: 32px; font-weight: 700; letter-spacing: 4px; margin-top: 4px; }
 
     /* Tlačítka ve stylu appky */
     .btn {
-      display: block;
-      width: 100%;
+      display: inline-block;
       text-align: center;
       text-decoration: none;
       font-family: 'Baloo 2', cursive;
       font-weight: 600;
       font-size: 18px;
-      padding: 15px;
+      padding: 14px 22px;
       border: 3px solid var(--ink);
       border-radius: 14px;
       box-shadow: 4px 4px 0 var(--ink);
-      margin-bottom: 14px;
       cursor: pointer;
       transition: transform 0.05s, box-shadow 0.05s;
+      background: var(--card);
+      color: var(--ink);
     }
     .btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink); }
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-accent { background: var(--accent2); color: #fff; }
-    .btn-light { background: var(--card); color: var(--ink); }
+    .btn-block { display: block; width: 100%; margin-bottom: 14px; }
 
+    /* ===== Horní lišta ===== */
+    .topbar { padding: 18px 0; }
+    .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand .logo {
+      width: 52px; height: 52px; border-radius: 26px; background: var(--card);
+      border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .brand .name { font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 26px; letter-spacing: -0.5px; }
+    .topbar .btn { font-size: 15px; padding: 10px 16px; }
+
+    /* ===== Hero ===== */
+    .hero { padding: 30px 0 50px; }
+    .hero .wrap { display: grid; grid-template-columns: 1fr; gap: 34px; align-items: center; }
+    @media (min-width: 880px) { .hero .wrap { grid-template-columns: 1.15fr 0.85fr; } }
+    .hero h1 { font-size: clamp(34px, 5.4vw, 54px); font-weight: 700; line-height: 1.08; letter-spacing: -1px; }
+    .hero .sub { margin-top: 14px; font-size: 18px; font-weight: 700; opacity: 0.75; line-height: 1.5; max-width: 480px; }
+    .hero .cta { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 14px; }
+    .hero .note { margin-top: 12px; font-size: 13px; font-weight: 700; opacity: 0.55; }
+    .hero .shot {
+      width: min(300px, 72vw); margin: 0 auto;
+      border: 4px solid var(--ink); border-radius: 28px; overflow: hidden;
+      box-shadow: 10px 10px 0 var(--ink);
+      transform: rotate(2.5deg);
+      background: var(--card);
+    }
+
+    /* Bublina "Čau lidi!" */
+    .speech {
+      display: inline-block; position: relative; background: var(--card);
+      border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink);
+      border-radius: 16px; padding: 8px 16px; font-family: 'Baloo 2', cursive;
+      font-weight: 600; font-size: 17px; margin-bottom: 16px;
+    }
+
+    /* ===== Sekce ===== */
+    section.block { padding: 34px 0; }
+    .sec-title { font-size: clamp(26px, 3.6vw, 36px); font-weight: 700; letter-spacing: -0.5px; margin-bottom: 22px; }
+
+    /* Jak to funguje */
+    .steps3 { display: grid; grid-template-columns: 1fr; gap: 18px; }
+    @media (min-width: 720px) { .steps3 { grid-template-columns: repeat(3, 1fr); } }
+    .step-card { position: relative; padding-top: 30px; }
+    .step-card .badge {
+      position: absolute; top: -20px; left: 20px;
+      width: 44px; height: 44px; border-radius: 22px; background: var(--accent2); color: #fff;
+      border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 20px;
+    }
+    .step-card h3 { font-size: 20px; margin-bottom: 8px; }
+    .step-card p { font-weight: 700; opacity: 0.7; line-height: 1.5; font-size: 15px; }
+
+    /* Funkce */
+    .grid6 { display: grid; grid-template-columns: 1fr; gap: 18px; }
+    @media (min-width: 640px) { .grid6 { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 940px) { .grid6 { grid-template-columns: repeat(3, 1fr); } }
+    .feat { display: flex; flex-direction: column; gap: 10px; }
+    .feat .emoji {
+      width: 54px; height: 54px; border-radius: 16px; background: var(--bg);
+      border: 3px solid var(--ink); display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+    }
+    .feat h3 { font-size: 19px; }
+    .feat p { font-weight: 700; opacity: 0.7; line-height: 1.5; font-size: 15px; }
+
+    /* Screenshoty */
+    .shots { display: flex; gap: 22px; overflow-x: auto; padding: 14px 4px 22px; scroll-snap-type: x mandatory; }
+    .shots img {
+      width: 240px; flex: none; scroll-snap-align: center;
+      border: 4px solid var(--ink); border-radius: 24px; box-shadow: 8px 8px 0 var(--ink);
+      background: var(--card);
+    }
+
+    /* Satira */
+    .satire { background: var(--card); }
+    .satire p { font-weight: 700; line-height: 1.55; opacity: 0.8; font-size: 15px; }
+
+    /* FAQ */
+    details.faq { margin-bottom: 14px; }
+    details.faq summary {
+      cursor: pointer; list-style: none; font-family: 'Baloo 2', cursive; font-weight: 600; font-size: 18px;
+      background: var(--card); border: 3px solid var(--ink); border-radius: 14px;
+      box-shadow: 4px 4px 0 var(--ink); padding: 14px 18px;
+    }
+    details.faq summary::-webkit-details-marker { display: none; }
+    details.faq summary::before { content: "▸ "; }
+    details.faq[open] summary::before { content: "▾ "; }
+    details.faq .a { padding: 14px 18px 4px; font-weight: 700; opacity: 0.75; line-height: 1.55; font-size: 15px; }
+    details.faq .a a { font-weight: 800; }
+
+    /* Závěrečné CTA */
+    .final { text-align: center; padding: 30px 24px; }
+    .final h2 { font-size: clamp(24px, 3.4vw, 32px); margin-bottom: 8px; }
+    .final p { font-weight: 700; opacity: 0.7; margin-bottom: 20px; }
+    .final .cta { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+
+    footer { padding: 34px 0 44px; text-align: center; }
+    footer .links { display: flex; flex-wrap: wrap; gap: 8px 22px; justify-content: center; margin-bottom: 12px; }
+    footer a { font-weight: 800; font-size: 14px; }
+    footer .copy { font-size: 13px; font-weight: 700; opacity: 0.55; }
+
+    /* ===== Pozvánka (?g=KÓD) ===== */
+    #invite .inner { max-width: 472px; margin: 24px auto 0; padding: 0 16px; }
+    #invite .card { margin-bottom: 18px; }
+    #invite h1 { font-size: 30px; text-align: center; line-height: 1.15; }
+    #invite .lead { text-align: center; opacity: 0.7; margin-top: 8px; font-weight: 700; line-height: 1.45; }
+    .mascot {
+      width: 76px; height: 76px; border-radius: 38px; background: var(--bg);
+      border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink);
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 18px;
+    }
+    .code-box {
+      background: var(--bg); border: 3px dashed var(--ink); border-radius: 14px;
+      padding: 14px; text-align: center; margin: 18px 0;
+    }
+    .code-box .label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; }
+    .code-box .code { font-family: 'Baloo 2', cursive; font-size: 32px; font-weight: 700; letter-spacing: 4px; margin-top: 4px; }
     .steps { list-style: none; margin-top: 8px; }
     .steps li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; font-weight: 700; }
     .steps .num {
@@ -105,22 +200,15 @@
       display: flex; align-items: center; justify-content: center;
       font-family: 'Baloo 2', cursive; font-size: 14px;
     }
-
-    .hint { font-size: 13px; color: var(--ink); opacity: 0.55; font-weight: 700; text-align: center; margin-top: 6px; line-height: 1.5; }
-
-    .feature { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; font-weight: 700; }
-    .feature .emoji { font-size: 26px; flex: none; }
-
-    footer { margin-top: 12px; text-align: center; }
-    footer a { color: var(--ink); font-weight: 800; font-size: 13px; }
+    .hint { font-size: 13px; opacity: 0.55; font-weight: 700; text-align: center; margin-top: 6px; line-height: 1.5; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="wrap">
 
-    <!-- ===== POZVÁNKA (zobrazí se, když je v adrese ?g=KÓD) ===== -->
-    <section id="invite" class="hidden">
+  <!-- ===== POZVÁNKA (zobrazí se, když je v adrese ?g=KÓD) ===== -->
+  <section id="invite" class="hidden">
+    <div class="inner">
       <div class="card">
         <div class="mascot"><svg viewBox="0 0 64 64" width="56" height="56" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Čáp">
           <path d="M27 46 L25 61 M35 46 L37 61" stroke="#E4572E" stroke-width="3.5" stroke-linecap="round" fill="none"/>
@@ -140,7 +228,7 @@
           <div class="code" id="codeText">——————</div>
         </div>
 
-        <a id="openApp" class="btn btn-primary" href="#">📲 Otevřít v appce</a>
+        <a id="openApp" class="btn btn-primary btn-block" href="#">📲 Otevřít v appce</a>
         <p class="hint">Máš appku Dotačníček? Klepni na tlačítko nahoře. Nemáš? Nainstaluj si ji podle kroků dole a kód zadej ručně.</p>
       </div>
 
@@ -151,60 +239,199 @@
           <li><span class="num">2</span><span>Otevři appku a dej <strong>Připojit se do skupiny</strong>.</span></li>
           <li><span class="num">3</span><span>Zadej kód <strong id="codeInline">——————</strong> a hotovo.</span></li>
         </ol>
-        <a id="playInvite" class="btn btn-accent" href="#" target="_blank" rel="noopener">▶️ Stáhnout z Google Play</a>
-        <a id="webInvite" class="btn btn-light" href="#" target="_blank" rel="noopener">🌐 Otevřít webovou verzi (iPhone)</a>
+        <a id="playInvite" class="btn btn-accent btn-block" href="#" target="_blank" rel="noopener">▶️ Stáhnout z Google Play</a>
+        <a id="webInvite" class="btn btn-block" href="#" target="_blank" rel="noopener">🌐 Otevřít webovou verzi (iPhone)</a>
+      </div>
+
+      <footer>
+        <div class="links"><a href="privacy.html">Zásady ochrany osobních údajů</a></div>
+      </footer>
+    </div>
+  </section>
+
+  <!-- ===== PRODUKTOVÁ STRÁNKA ===== -->
+  <div id="home" class="hidden">
+
+    <div class="topbar">
+      <div class="wrap">
+        <a class="brand" href="/">
+          <span class="logo"><svg viewBox="0 0 64 64" width="36" height="36" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Čáp">
+            <path d="M27 46 L25 61 M35 46 L37 61" stroke="#E4572E" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+            <ellipse cx="29" cy="36" rx="16" ry="11" fill="#fff" stroke="#15233B" stroke-width="3"/>
+            <path d="M13 35 q7 4 13 1 l-4 8 q-7 -1 -9 -9 z" fill="#15233B"/>
+            <path d="M40 30 q8 -2 6 -15" fill="none" stroke="#15233B" stroke-width="9" stroke-linecap="round"/>
+            <path d="M40 30 q8 -2 6 -15" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="47" cy="15" r="5.5" fill="#fff" stroke="#15233B" stroke-width="3"/>
+            <circle cx="48.5" cy="14" r="1.5" fill="#15233B"/>
+            <path d="M51 14 L63 11 L52 19 Z" fill="#E4572E" stroke="#15233B" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg></span>
+          <span class="name">Dotačníček</span>
+        </a>
+        <a class="btn btn-accent" id="playTop" href="#" target="_blank" rel="noopener">▶️ Google Play</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="wrap">
+        <div>
+          <span class="speech">Čau lidi! 👋</span>
+          <h1>Kdo komu dluží?<br />Spočítám to za vás.</h1>
+          <p class="sub">Dotačníček rozdělí společné útraty s partou, spolubydlícími, na chatě i na dovolené. Bez hádek, bez tabulek, bez počítání na ubrousku. Sorry jako.</p>
+          <div class="cta">
+            <a class="btn btn-accent" id="playHero" href="#" target="_blank" rel="noopener">▶️ Stáhnout z Google Play</a>
+            <a class="btn" id="webHero" href="#" target="_blank" rel="noopener">🌐 Webová verze (iPhone)</a>
+          </div>
+          <p class="note">Zdarma. Bez reklam. Synchronizace v reálném čase.</p>
+        </div>
+        <div class="shot"><img src="img/shot-uvod.png" alt="Úvodní obrazovka aplikace Dotačníček" width="540" height="960" /></div>
       </div>
     </section>
 
-    <!-- ===== ÚVODNÍ STRÁNKA (když v adrese není kód) ===== -->
-    <section id="home" class="hidden">
-      <div class="card">
-        <div class="mascot"><svg viewBox="0 0 64 64" width="56" height="56" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Čáp">
-          <path d="M27 46 L25 61 M35 46 L37 61" stroke="#E4572E" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-          <ellipse cx="29" cy="36" rx="16" ry="11" fill="#fff" stroke="#15233B" stroke-width="3"/>
-          <path d="M13 35 q7 4 13 1 l-4 8 q-7 -1 -9 -9 z" fill="#15233B"/>
-          <path d="M40 30 q8 -2 6 -15" fill="none" stroke="#15233B" stroke-width="9" stroke-linecap="round"/>
-          <path d="M40 30 q8 -2 6 -15" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-          <circle cx="47" cy="15" r="5.5" fill="#fff" stroke="#15233B" stroke-width="3"/>
-          <circle cx="48.5" cy="14" r="1.5" fill="#15233B"/>
-          <path d="M51 14 L63 11 L52 19 Z" fill="#E4572E" stroke="#15233B" stroke-width="1.5" stroke-linejoin="round"/>
-        </svg></div>
-        <h1>Dotačníček</h1>
-        <p class="lead">Rozděl útraty ve skupině bez hádek a bez počítání na ubrousku.</p>
-        <a id="playHome" class="btn btn-accent" href="#" target="_blank" rel="noopener" style="margin-top:20px;">▶️ Stáhnout z Google Play</a>
-        <a id="webHome" class="btn btn-light" href="#" target="_blank" rel="noopener">🌐 Otevřít webovou verzi (iPhone)</a>
+    <section class="block">
+      <div class="wrap">
+        <h2 class="sec-title">Jak to funguje</h2>
+        <div class="steps3">
+          <div class="card step-card">
+            <span class="badge">1</span>
+            <h3>Založ skupinu</h3>
+            <p>Chata, byt, dovolená… Pozvi kamarády odkazem nebo šestimístným kódem. Připojí se jedním ťuknutím.</p>
+          </div>
+          <div class="card step-card">
+            <span class="badge">2</span>
+            <h3>Zapisuj útraty</h3>
+            <p>Kdo platil, kolik a za koho. Rovným dílem, poměrově, nebo podle přesných cen. Klidně s fotkou účtenky.</p>
+          </div>
+          <div class="card step-card">
+            <span class="badge">3</span>
+            <h3>Vyrovnejte se</h3>
+            <p>Appka spočítá, kdo komu dluží, a zminimalizuje počet převodů. Místo deseti plateb jedna. Zacvakni a hotovo.</p>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <div class="card">
-        <div class="feature"><span class="emoji">🧾</span><span>Zapiš výdaj, kdo platil a za koho — Andrejko spočítá za tebe, kdo komu dluží.</span></div>
-        <div class="feature"><span class="emoji">👫</span><span>Nebuďte slušní, řekněte jméno a pozvěte kamarády do skupiny jedním odkazem.</span></div>
-        <div class="feature"><span class="emoji">💸</span><span>Chytré vyrovnání: co nejmíň převodů, ať to máte rychle z krku.</span></div>
-        <div class="feature"><span class="emoji">📷</span><span>Přidej fotku účtenky, ať je jasno, že ta částka (ne)souhlasí.</span></div>
+    <section class="block">
+      <div class="wrap">
+        <h2 class="sec-title">Co všechno umí</h2>
+        <div class="grid6">
+          <div class="card feat">
+            <span class="emoji">💸</span>
+            <h3>Chytré vyrovnání</h3>
+            <p>Hladový algoritmus najde nejmenší počet plateb, ať to máte rychle z krku.</p>
+          </div>
+          <div class="card feat">
+            <span class="emoji">🧾</span>
+            <h3>Fotky účtenek</h3>
+            <p>Přilep k výdaji fotku účtenky, ať je jasno, že částka (ne)souhlasí.</p>
+          </div>
+          <div class="card feat">
+            <span class="emoji">📊</span>
+            <h3>Audit NKÚ</h3>
+            <p>Parodická kontrolní zpráva skupiny: struktura výdajů, kategorie a žebříček „Sponzor večera".</p>
+          </div>
+          <div class="card feat">
+            <span class="emoji">🌍</span>
+            <h3>Více měn</h3>
+            <p>CZK, EUR i USD pohromadě, s orientačním přepočtem podle živého kurzu.</p>
+          </div>
+          <div class="card feat">
+            <span class="emoji">🔔</span>
+            <h3>Notifikace</h3>
+            <p>Přidá někdo výdaj nebo splatí dluh? Appka dá hned vědět.</p>
+          </div>
+          <div class="card feat">
+            <span class="emoji">🌙</span>
+            <h3>Tmavý režim i zámek</h3>
+            <p>Světlý a tmavý vzhled, volitelná velikost písma a odemykání otiskem či obličejem.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="wrap">
+        <h2 class="sec-title">Mrkni dovnitř</h2>
+        <div class="shots">
+          <img src="img/shot-prehled.png" alt="Přehled skupin a dluhů" width="540" height="960" loading="lazy" />
+          <img src="img/shot-skupina.png" alt="Detail skupiny s výdaji" width="540" height="960" loading="lazy" />
+          <img src="img/shot-audit.png" alt="Audit NKÚ — parodické statistiky skupiny" width="540" height="960" loading="lazy" />
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="wrap">
+        <div class="card satire">
+          <p>🎭 <strong>Poctivě přiznáno:</strong> Dotačníček je nezávislá satirická aplikace. Maskot i hlášky jsou karikatura, humor a nadsázka. Aplikace není spojena s žádnou politickou stranou, osobou ani institucí, není jimi provozována ani schválena a nevyjadřuje žádná skutková tvrzení o nikom. Ty peníze tam fakt máme.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="wrap">
+        <h2 class="sec-title">Časté dotazy</h2>
+        <details class="faq">
+          <summary>Je Dotačníček zdarma?</summary>
+          <div class="a">Ano, úplně. Žádné reklamy, žádné předplatné, žádné skryté poplatky. My tam ty peníze máme.</div>
+        </details>
+        <details class="faq">
+          <summary>Funguje na iPhonu?</summary>
+          <div class="a">Zatím přes <a href="app/" target="_blank" rel="noopener">webovou verzi</a> — otevři ji v Safari a přidej na plochu (Sdílet → Přidat na plochu). Nativní appka pro App Store se připravuje.</div>
+        </details>
+        <details class="faq">
+          <summary>Vidí moje útraty někdo cizí?</summary>
+          <div class="a">Ne. Výdaje vidí jen členové tvé skupiny. Detaily najdeš v <a href="privacy.html">zásadách ochrany osobních údajů</a>.</div>
+        </details>
+        <details class="faq">
+          <summary>Jak smažu účet?</summary>
+          <div class="a">Přímo v appce: Profil → Smazat účet. Krok za krokem to popisuje <a href="delete-account.html">návod na smazání účtu</a>.</div>
+        </details>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="wrap">
+        <div class="card final">
+          <h2>Stahuj, rozděluj, makej.</h2>
+          <p>Sorry jako, ale ubrousek už nebude potřeba.</p>
+          <div class="cta">
+            <a class="btn btn-accent" id="playFinal" href="#" target="_blank" rel="noopener">▶️ Stáhnout z Google Play</a>
+            <a class="btn" id="webFinal" href="#" target="_blank" rel="noopener">🌐 Otevřít webovou verzi</a>
+          </div>
+        </div>
       </div>
     </section>
 
     <footer>
-      <a href="privacy.html">Zásady ochrany osobních údajů</a>
+      <div class="wrap">
+        <div class="links">
+          <a href="privacy.html">Zásady ochrany osobních údajů</a>
+          <a href="delete-account.html">Smazání účtu</a>
+          <a href="mailto:vojtech.balata@gmail.com">Kontakt</a>
+        </div>
+        <p class="copy">© 2026 Dotačníček — nezávislá satirická aplikace</p>
+      </div>
     </footer>
+
   </div>
 
   <script>
     // === Odkazy na stažení ===
     // Google Play (Android) + webová verze (iPhone / kdokoli, jde přidat na plochu).
     // Play odkaz začne fungovat, jakmile appku schválí Google Play.
-    var PLAY_URL = 'https://play.google.com/store/apps/details?id=com.balata.dotacnicek';
-    var WEB_URL = 'https://balatav.github.io/dotacnicek/app/';
+    // POZOR: package zůstává com.balata.dotacnik (zamčený v Play Console).
+    var PLAY_URL = 'https://play.google.com/store/apps/details?id=com.balata.dotacnik';
+    var WEB_URL = 'https://dotacnicek.cz/app/';
 
     (function () {
       var params = new URLSearchParams(window.location.search);
       var code = (params.get('g') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 
-      // Tlačítka: Google Play a webová verze
-      ['playInvite', 'playHome'].forEach(function (id) {
+      ['playInvite', 'playTop', 'playHero', 'playFinal'].forEach(function (id) {
         var el = document.getElementById(id);
         if (el) el.href = PLAY_URL;
       });
-      ['webInvite', 'webHome'].forEach(function (id) {
+      ['webInvite', 'webHero', 'webFinal'].forEach(function (id) {
         var el = document.getElementById(id);
         if (el) el.href = WEB_URL;
       });
@@ -218,7 +445,7 @@
         document.getElementById('openApp').href = 'dotacnicek://join/' + code;
         document.title = 'Pozvánka do skupiny — Dotačníček';
       } else {
-        // Režim ÚVODNÍ STRÁNKA
+        // Režim PRODUKTOVÁ STRÁNKA
         document.getElementById('home').classList.remove('hidden');
       }
     })();

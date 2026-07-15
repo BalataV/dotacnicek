@@ -49,4 +49,4 @@ Stahuj, rozděluj, makej. My tam ty peníze máme.
 
 ## Kontakt
 - E-mail vývojáře: vojtech.balata@gmail.com
-- Web/Zásady ochrany údajů: https://balatav.github.io/dotacnicek/privacy.html
+- Web/Zásady ochrany údajů: https://dotacnicek.cz/privacy.html

@@ -40,7 +40,7 @@ Play Console → **Create app**
 ## B1. Privacy policy
 ▶ VLOŽ:
 ```
-https://balatav.github.io/dotacnicek/privacy.html
+https://dotacnicek.cz/privacy.html
 ```
 
 ## B2. App access
