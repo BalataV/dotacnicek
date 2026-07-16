@@ -36,6 +36,7 @@ na **„Dotačníček"** (2026-07, doména dotacnik.cz byla zabraná).
 
 ## Klíčové konvence
 - Neo-brutalistické UI: silné okraje 3px (`c.ink`), tvrdý posunutý stín, kulaté rohy, font Baloo 2.
+- **Klávesnice:** globální `Pressable onPress={Keyboard.dismiss}` v Root (ťuknutí kamkoli mimo pole zavře klávesnici; potomci mají přednost). Každý ScrollView s textovým inputem musí mít `keyboardShouldPersistTaps="handled"` (jinak první ťuk na tlačítko jen zavře klávesnici).
 - Texty/komentáře česky. Uživatel je začátečník – vysvětlovat jednoduše, návody krok za krokem.
 - Úvodní bublina „Čau lidi!" se NEMĚNÍ. Jinde se hláška losuje podle bilance uživatele (dlužím / mám dostat / vyrovnaný) – sady `QUIPS_OWE/OWED/EVEN` v `quips.ts`, výběr v `bubbleFor`. Klik na spodní navigaci na obrazovku, kde už jsem, hlášku NEMĚNÍ (`navigate` vrací `s` při stejné obrazovce).
 - Maskot má dvě karikatury: výchozí (premiér) a `alt` (ministryně financí – blond mikádo, brýle, perly; jméno se v kódu nepoužívá). Hlášky s `alt:true` v `quips.ts` ji zobrazí; `isAltQuip(text)` + `<Mascot alt>` v hlavičce.

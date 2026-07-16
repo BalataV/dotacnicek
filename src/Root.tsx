@@ -1,6 +1,6 @@
 // Hlavní obal aplikace: hlavička s maskotem, přepínání obrazovek, spodní navigace
 import React, { useEffect } from 'react';
-import { View, Text, Pressable, StatusBar, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, StatusBar, ActivityIndicator, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FONTS } from './theme';
 import { useApp } from './store';
@@ -123,7 +123,9 @@ export default function Root() {
 
   return (
     <View style={{ flex: 1, backgroundColor: showChrome ? c.card : c.bg, paddingTop: insets.top }}>
-      <View style={{ flex: 1, backgroundColor: c.bg }}>
+      {/* Pressable přes celou plochu: ťuknutí kamkoli mimo pole zavře klávesnici.
+          Tlačítka a inputy (potomci) mají přednost, takže fungují normálně. */}
+      <Pressable style={{ flex: 1, backgroundColor: c.bg }} onPress={Keyboard.dismiss} accessible={false}>
         {showChrome && (
           <View style={{ backgroundColor: c.card, borderBottomWidth: 3, borderBottomColor: c.ink, zIndex: 6 }}>
             <View style={{ width: '100%', maxWidth: MAX_W, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 13, paddingBottom: 14 }}>
@@ -161,7 +163,7 @@ export default function Root() {
             </View>
           </View>
         )}
-      </View>
+      </Pressable>
       <StatusBar barStyle={isDarkColor(showChrome ? c.card : c.bg) ? 'light-content' : 'dark-content'} />
     </View>
   );
