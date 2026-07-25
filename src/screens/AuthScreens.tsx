@@ -183,3 +183,27 @@ export function ResetPassword() {
     </KeyboardAvoidingView>
   );
 }
+
+// Sem uživatel přijde z e-mailového odkazu po kliknutí na „Potvrdit e-mail".
+// Token appka ověří a hned se zase odhlásí (viz store.tsx) – ať je jasné,
+// že potvrzení proběhlo, místo tichého vhození do appky bez vysvětlení.
+export function EmailConfirmed() {
+  const c = useColors();
+  const { actions } = useApp();
+  return (
+    <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: 28 }}>
+      <View style={{ width: 84, height: 84, borderRadius: 42, backgroundColor: c.good, borderWidth: 3, borderColor: c.ink, alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
+        <Text style={{ color: '#fff', fontFamily: FONTS.body900, fontSize: 36 }}>✓</Text>
+      </View>
+      <Text style={{ fontFamily: FONTS.display700, fontSize: 26, color: c.onbg, marginBottom: 8, textAlign: 'center' }}>E-mail potvrzen!</Text>
+      <Text style={{ fontFamily: FONTS.body700, fontSize: 14, color: c.onbg, opacity: 0.7, maxWidth: 260, textAlign: 'center', lineHeight: 20, marginBottom: 28 }}>
+        Tvůj účet je hotový. Teď se stačí přihlásit e-mailem a heslem, které jsi zadal(a) při registraci.
+      </Text>
+      <Pushable onPress={() => actions.navigate('login')} radius={14} style={{ width: '100%', maxWidth: 280 }}>
+        <View style={{ backgroundColor: c.accent, borderWidth: 3, borderColor: c.ink, borderRadius: 14, paddingVertical: 14, alignItems: 'center' }}>
+          <Text style={{ fontFamily: FONTS.display600, fontSize: 17, color: '#fff' }}>Přihlásit se</Text>
+        </View>
+      </Pushable>
+    </ScrollView>
+  );
+}

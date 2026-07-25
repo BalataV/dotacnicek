@@ -7,7 +7,7 @@ export type ContentSize = 'small' | 'medium' | 'large';
 export type MascotMood = 'neutral' | 'happy' | 'sad';
 
 export type ScreenName =
-  | 'onboarding' | 'register_email' | 'login' | 'reset_password' | 'overview' | 'create_group'
+  | 'onboarding' | 'register_email' | 'login' | 'reset_password' | 'email_confirmed' | 'overview' | 'create_group'
   | 'share_group' | 'join' | 'choose_identity' | 'group' | 'add' | 'expense'
   | 'settle' | 'profile' | 'privacy' | 'audit' | 'smlouva' | 'activity';
 

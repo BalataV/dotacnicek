@@ -131,6 +131,14 @@ export async function verifyRecoveryToken(tokenHash: string) {
   return data.session;
 }
 
+// Ověří jednorázový token z odkazu „potvrzení registrace". Stejný princip jako
+// verifyRecoveryToken – nezávislé na PKCE, funguje i z jiného zařízení/prohlížeče.
+export async function verifyEmailConfirmation(tokenHash: string) {
+  const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'signup' });
+  if (error) throw error;
+  return data.session;
+}
+
 // Nastaví nové heslo přihlášeného uživatele (po příchodu z odkazu na obnovu)
 export async function updatePassword(password: string) {
   const { error } = await supabase.auth.updateUser({ password });

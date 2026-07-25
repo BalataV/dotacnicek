@@ -9,7 +9,7 @@ import Mascot from './components/Mascot';
 import { Coins, Toast } from './components/Overlays';
 import { isAltQuip } from './quips';
 
-import { Onboarding, RegisterEmail, Login, ResetPassword } from './screens/AuthScreens';
+import { Onboarding, RegisterEmail, Login, ResetPassword, EmailConfirmed } from './screens/AuthScreens';
 import Overview from './screens/Overview';
 import CreateGroup from './screens/CreateGroup';
 import ShareGroup from './screens/ShareGroup';
@@ -99,7 +99,7 @@ export default function Root() {
   const insets = useSafeAreaInsets();
   const { state, actions } = useApp();
   const sc = state.screen;
-  const showChrome = sc !== 'onboarding' && sc !== 'register_email' && sc !== 'login';
+  const showChrome = sc !== 'onboarding' && sc !== 'register_email' && sc !== 'login' && sc !== 'email_confirmed';
 
   // Start appky: dokud nevíme, jestli je uživatel přihlášený, držíme splash.
   // Bez toho by přihlášenému na okamžik probliklo onboarding (přihlásit/registrovat).
@@ -119,6 +119,7 @@ export default function Root() {
   else if (sc === 'register_email') Screen = <RegisterEmail />;
   else if (sc === 'login') Screen = <Login />;
   else if (sc === 'reset_password') Screen = <ResetPassword />;
+  else if (sc === 'email_confirmed') Screen = <EmailConfirmed />;
   else if (sc === 'overview') Screen = <Overview />;
   else if (sc === 'create_group') Screen = <CreateGroup />;
   else if (sc === 'share_group') Screen = <ShareGroup />;

@@ -131,6 +131,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
           clearResetParam();
           showToast('Odkaz z e-mailu už neplatí – požádej o nový');
         }
+        // Odkaz „potvrzení registrace" z e-mailu: ověříme token, ale hned se
+        // odhlásíme – uživatel má vidět jasnou zprávu „e-mail potvrzen", ne
+        // být bez vysvětlení tiše přihlášený rovnou do appky.
+        if (initialAuthTokenHash && initialAuthType === 'signup') {
+          try {
+            await api.authApi.verifyEmailConfirmation(initialAuthTokenHash);
+          } catch (e) {
+            showToast('Odkaz na potvrzení e-mailu už neplatí');
+          }
+          try { await api.authApi.signOut(); } catch (e) {}
+          clearResetParam();
+          setState((s) => ({ ...s, screen: 'email_confirmed' }));
+        }
         // Odkaz „obnova hesla" z e-mailu: jednorázový token vyměníme za session
         // ještě před čtením přihlášení, ať se rovnou ukáže obrazovka nového hesla.
         if (initialAuthTokenHash && initialAuthType === 'recovery') {
@@ -261,6 +274,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       register_email: 'onboarding',
       login: 'onboarding',
       reset_password: 'overview',
+      email_confirmed: 'onboarding',
     };
     const target = targets[sc];
     if (!target) return false; // overview / onboarding → necháme appku zavřít
