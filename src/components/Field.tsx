@@ -38,7 +38,13 @@ const Field = forwardRef<TextInput, FieldProps>(function Field(
         }}
         {...rest}
       />
-      {right}
+      {/* Doplněk vpravo (např. symbol měny) musí být NAD inputem – ten má zIndex 1,
+          takže bez vlastní vrstvy by ho překryl svým pozadím a vůbec by nebyl vidět. */}
+      {!!right && (
+        <View pointerEvents="none" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, zIndex: 2 }}>
+          {right}
+        </View>
+      )}
     </View>
   );
 });
