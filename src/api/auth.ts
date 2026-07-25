@@ -2,6 +2,7 @@
 import { Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
+import * as AppleAuth from 'expo-apple-authentication';
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from '../supabase';
 import { LANDING_BASE } from '../config';
 
@@ -13,6 +14,16 @@ export async function isGoogleEnabled() {
     const res = await fetch(`${SUPABASE_URL}/auth/v1/settings`, { headers: { apikey: SUPABASE_ANON_KEY } });
     const json = await res.json();
     return !!json?.external?.google;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Umí zařízení „Sign in with Apple"? (jen iOS 13+; na Androidu/webu vždy false)
+export async function isAppleAvailable() {
+  if (Platform.OS !== 'ios') return false;
+  try {
+    return await AppleAuth.isAvailableAsync();
   } catch (e) {
     return false;
   }
@@ -60,6 +71,34 @@ export async function signInWithGoogle() {
   const { data: sessionData, error: exErr } = await supabase.auth.exchangeCodeForSession(code);
   if (exErr) throw exErr;
   return sessionData.session;
+}
+
+// Přihlášení přes Apple ID (nativní iOS dialog, žádný prohlížeč).
+// Apple pošle podepsaný identityToken, ten vyměníme za Supabase session.
+// POZOR: jméno (fullName) Apple vrací JEN při úplně prvním přihlášení –
+// proto ho hned uložíme do metadat účtu, jinak už ho nikdy nedostaneme.
+export async function signInWithApple() {
+  const credential = await AppleAuth.signInAsync({
+    requestedScopes: [
+      AppleAuth.AppleAuthenticationScope.FULL_NAME,
+      AppleAuth.AppleAuthenticationScope.EMAIL,
+    ],
+  });
+  if (!credential.identityToken) throw new Error('Apple nevrátil přihlašovací token.');
+
+  const { data, error } = await supabase.auth.signInWithIdToken({
+    provider: 'apple',
+    token: credential.identityToken,
+  });
+  if (error) throw error;
+
+  // Jméno z Apple ID (jen poprvé) – doplníme, pokud účet ještě žádné nemá
+  const parts = [credential.fullName?.givenName, credential.fullName?.familyName].filter(Boolean);
+  const appleName = parts.join(' ').trim();
+  if (appleName && !data.user?.user_metadata?.full_name) {
+    try { await supabase.auth.updateUser({ data: { full_name: appleName } }); } catch (e) {}
+  }
+  return data.session;
 }
 
 export async function signUpWithEmail(email: string, password: string) {

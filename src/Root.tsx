@@ -101,6 +101,19 @@ export default function Root() {
   const sc = state.screen;
   const showChrome = sc !== 'onboarding' && sc !== 'register_email' && sc !== 'login';
 
+  // Start appky: dokud nevíme, jestli je uživatel přihlášený, držíme splash.
+  // Bez toho by přihlášenému na okamžik probliklo onboarding (přihlásit/registrovat).
+  if (state.booting) {
+    return (
+      <View style={{ flex: 1, backgroundColor: c.bg, alignItems: 'center', justifyContent: 'center', paddingTop: insets.top }}>
+        <Mascot size={130} />
+        <Text style={{ fontFamily: FONTS.display700, fontSize: 34, color: c.onbg, letterSpacing: -1, marginTop: 14 }}>Dotačníček</Text>
+        <ActivityIndicator size="small" color={c.onbg} style={{ marginTop: 18 }} />
+        <StatusBar barStyle={isDarkColor(c.bg) ? 'light-content' : 'dark-content'} />
+      </View>
+    );
+  }
+
   let Screen = null;
   if (sc === 'onboarding') Screen = <Onboarding />;
   else if (sc === 'register_email') Screen = <RegisterEmail />;

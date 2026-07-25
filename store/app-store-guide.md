@@ -45,6 +45,14 @@ Mac nepotřebuješ). Odškrtávej si `[ ]` → `[x]` jak postupuješ.
 
 ## FÁZE 1 — iOS build přes EAS (z terminálu ve Windows)
 
+> ℹ️ **Přihlašování se liší podle obchodu (2026-07-17):** iOS verze má
+> **Sign in with Apple**, Android verze **Pokračovat s Googlem**, e-mail + heslo
+> je všude. Je to jeden a tentýž kód, jen se podle platformy zobrazí správné
+> tlačítko — přesně jak to dělají běžné appky. Supabase má Apple provider už
+> zapnutý (client ID = `com.balata.dotacnicek`), v Apple Developer portálu
+> **nic ručně nastavovat nemusíš** — capability „Sign in with Apple" zapne EAS
+> při buildu sám (v app.json je `ios.usesAppleSignIn: true`).
+
 Z adresáře `BabisovnikApp` spusť:
 
 ```bash
@@ -62,6 +70,8 @@ Co přesně uvidíš a co odpovědět:
 - [ ] Otázka na **Push Notifications key (APNs)** → **Y / Generate**
       (nutné, aby chodily notifikace!)
 - [ ] Bundle ID **com.balata.dotacnicek** se zaregistruje automaticky.
+- [ ] Případná hláška o **synchronizaci capabilities** (Sign in with Apple,
+      Push Notifications) → nech proběhnout, EAS to nastaví na App ID sám.
 - [ ] Build běží v cloudu **15–30 min** — sleduj odkaz, který ti vypíše
       (expo.dev/accounts/balatav/projects/BabisovnikApp/builds/…).
 - [ ] **Kontrola:** build má zelený stav **Finished**.
@@ -110,6 +120,9 @@ eas submit --platform ios --latest
 3. [ ] Na **iPhonu**: App Store → nainstaluj **TestFlight** → přihlas se
    stejným Apple ID → uvidíš Dotačníček → **Install**.
 4. [ ] **Otestuj (checklist):**
+   - [ ] **Sign in with Apple** — tlačítko „Pokračovat s Apple" na úvodní
+         obrazovce → Face ID / heslo → přihlásí a vytvoří účet
+         (vyzkoušej i variantu **„Skrýt můj e-mail"**, appka musí fungovat stejně)
    - [ ] registrace e-mailem → přijde potvrzovací e-mail → potvrzení funguje
    - [ ] přihlášení + odhlášení
    - [ ] „Zapomenuté heslo" → přijde e-mail → nastavení nového hesla

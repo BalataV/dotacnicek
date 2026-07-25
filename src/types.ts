@@ -81,7 +81,9 @@ export interface AppState {
   toast: string | null;
   coins: boolean;
   busy: boolean;
+  booting: boolean; // startovní kontrola přihlášení běží – zatím neukazuj onboarding
   googleEnabled: boolean;
+  appleAvailable: boolean;
   meUid: string | null;
   myName: string;
   userTheme: ThemeName;
@@ -142,6 +144,7 @@ export interface Actions {
   sendPasswordReset: () => void;
   submitNewPassword: () => void;
   enterGoogle: () => void;
+  enterApple: () => void;
   logout: () => void;
   startCreateGroup: () => void;
   addMember: () => void;

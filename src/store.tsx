@@ -42,7 +42,11 @@ function makeInitialState(): AppState {
     toast: null,
     coins: false,
     busy: false, // probíhá síťová operace
+    // Než doběhne kontrola uložené session, nesmí se ukázat onboarding – jinak
+    // přihlášenému uživateli problikne přihlašovací obrazovka (viz Root: Splash).
+    booting: CLOUD_MODE,
     googleEnabled: false, // zda je Google login v Supabase zapnutý
+    appleAvailable: false, // umí zařízení Sign in with Apple (jen iOS 13+)
     meUid: null,
     myName: 'Já',
     userTheme: 'zluta',
@@ -123,6 +127,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       if (CLOUD_MODE) {
         api.authApi.isGoogleEnabled().then((ge) => setState((s) => ({ ...s, googleEnabled: ge }))).catch(() => {});
+        api.authApi.isAppleAvailable().then((aa) => setState((s) => ({ ...s, appleAvailable: aa }))).catch(() => {});
         try {
           const session = await api.authApi.getSession(); // čte se lokálně, rychlé
           if (session) {
@@ -137,7 +142,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 setState((s) => ({ ...s, ...cached, meUid: u.id, myName: myName0, screen: 'overview', bubble: bubbleFor(s, 'overview'), bubbleKey: s.bubbleKey + 1 }));
               }
             } catch (e) {}
-            await finishLogin(); // čerstvá data ze sítě (přepíšou cache)
+            try {
+              await finishLogin(); // čerstvá data ze sítě (přepíšou cache)
+            } catch (e) {
+              // Síť selhala, ale session je platná (třeba offline start) – pustíme
+              // uživatele dovnitř na cache, ať nekouká na přihlašovací obrazovku.
+              setState((s) => (s.screen === 'onboarding'
+                ? { ...s, meUid: u.id, myName: myName0, screen: 'overview', bubble: bubbleFor(s, 'overview'), bubbleKey: s.bubbleKey + 1 }
+                : s));
+            }
             // Příchod z odkazu „obnova hesla" → rovnou nabídnout nastavení nového
             if (wantsPasswordReset()) {
               clearResetParam();
@@ -148,7 +161,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
             clearResetParam();
             showToast('Odkaz na obnovu hesla vypršel – požádej o nový');
           }
-        } catch (e) {}
+        } catch (e) {
+        } finally {
+          // Ať dopadne cokoli, splash musí zmizet – jinak by appka zamrzla na startu.
+          setState((s) => ({ ...s, booting: false }));
+        }
       }
     })();
 
@@ -750,12 +767,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
     navigate('overview');
   }
 
+  // Přihlášení přes Apple ID (jen iOS). Zrušení dialogu uživatelem není chyba.
+  async function enterApple() {
+    if (!CLOUD_MODE) { navigate('overview'); return; }
+    try {
+      const session = await api.authApi.signInWithApple();
+      if (session) await finishLogin();
+    } catch (e: any) {
+      if (e?.code === 'ERR_REQUEST_CANCELED') return; // uživatel dialog zavřel
+      showToast('Přihlášení přes Apple selhalo');
+    }
+  }
+
   async function logout() {
     const uid = stateRef.current.meUid;
     if (CLOUD_MODE) { try { await api.authApi.signOut(); } catch (e) {} }
     if (uid) AsyncStorage.removeItem(cacheKey(uid)).catch(() => {});
     meRef.current = null;
-    setState((s) => ({ ...makeInitialState(), userTheme: s.userTheme, contentSize: s.contentSize, toggles: s.toggles, googleEnabled: s.googleEnabled }));
+    setState((s) => ({ ...makeInitialState(), userTheme: s.userTheme, contentSize: s.contentSize, toggles: s.toggles, googleEnabled: s.googleEnabled, appleAvailable: s.appleAvailable }));
   }
 
   async function deleteAccount() {
@@ -766,7 +795,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     if (uid) AsyncStorage.removeItem(cacheKey(uid)).catch(() => {});
     meRef.current = null;
-    setState((s) => ({ ...makeInitialState(), userTheme: s.userTheme, contentSize: s.contentSize, toggles: s.toggles, googleEnabled: s.googleEnabled }));
+    setState((s) => ({ ...makeInitialState(), userTheme: s.userTheme, contentSize: s.contentSize, toggles: s.toggles, googleEnabled: s.googleEnabled, appleAvailable: s.appleAvailable }));
     showToast('Účet smazán');
   }
 
@@ -878,7 +907,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const actions: Actions = {
     patch, showToast, navigate, goBack, openGroup, startAdd, startEdit, submitExpense, payDebt,
-    openContract, pokeMascot, setTheme, setContentSize, toggleSet, setPayer, togglePart, setCurrency, setSplitType, setCategory, setShare, doRegister, doLogin, sendPasswordReset, submitNewPassword, enterGoogle, logout,
+    openContract, pokeMascot, setTheme, setContentSize, toggleSet, setPayer, togglePart, setCurrency, setSplitType, setCategory, setShare, doRegister, doLogin, sendPasswordReset, submitNewPassword, enterGoogle, enterApple, logout,
     startCreateGroup, addMember, removeMember, createGroup, openExpense, deleteExpense, deleteGroup,
     deleteAccount, startJoin, submitJoin, joinByCode, finishJoin, setMyName,
     refreshAll, refreshGroup,

@@ -2,6 +2,7 @@
 import React, { useRef } from 'react';
 import { View, Text, ScrollView, KeyboardAvoidingView, Platform, Pressable, TextInput } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import * as AppleAuth from 'expo-apple-authentication';
 import { FONTS } from '../theme';
 import { useApp, CLOUD_MODE } from '../store';
 import { useColors, Pushable, Label } from '../components/ui';
@@ -22,8 +23,11 @@ function GoogleIcon() {
 export function Onboarding() {
   const c = useColors();
   const { state, actions } = useApp();
-  // Na nativním iOS Google skrýváme: Apple (guideline 4.8) by jinak vyžadoval
-  // i „Sign in with Apple". E-mail login stačí; na Androidu a webu Google zůstává.
+  // Přihlášení podle platformy, jak to mají běžné appky:
+  //  - iOS (App Store)  → Sign in with Apple (oficiální tlačítko, guideline 4.8)
+  //  - Android (Play) a web → Pokračovat s Googlem
+  // E-mail + heslo funguje všude jako záloha.
+  const showApple = Platform.OS === 'ios' && state.appleAvailable;
   const showGoogle = (!CLOUD_MODE || state.googleEnabled) && Platform.OS !== 'ios';
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: 28, paddingVertical: 40 }}>
@@ -40,6 +44,20 @@ export function Onboarding() {
       <Text style={{ color: c.onbg, opacity: 0.85, fontFamily: FONTS.body700, fontSize: 14, maxWidth: 240, textAlign: 'center', marginBottom: 28, lineHeight: 20 }}>
         Kdo komu dluží? Spočítám to za vás. Sorry jako.
       </Text>
+
+      {/* iOS: oficiální tlačítko Applu (vlastní design Apple v recenzi neuznává) */}
+      {showApple && (
+        <View style={{ width: '100%', maxWidth: 280, marginBottom: 10, position: 'relative' }}>
+          <View style={{ position: 'absolute', top: 4, left: 4, right: -4, bottom: -4, backgroundColor: c.ink, borderRadius: 14 }} />
+          <AppleAuth.AppleAuthenticationButton
+            buttonType={AppleAuth.AppleAuthenticationButtonType.CONTINUE}
+            buttonStyle={AppleAuth.AppleAuthenticationButtonStyle.BLACK}
+            cornerRadius={14}
+            style={{ width: '100%', height: 50 }}
+            onPress={actions.enterApple}
+          />
+        </View>
+      )}
 
       {showGoogle && (
         <Pushable onPress={actions.enterGoogle} radius={14} style={{ width: '100%', maxWidth: 280, marginBottom: 10 }}>
