@@ -8,7 +8,7 @@ import * as Linking from 'expo-linking';
 import { INITIAL_GROUPS, INITIAL_EXPENSES } from './data';
 import { bubbleFor, pick } from './logic';
 import { QUIPS_EGG } from './quips';
-import { isSupabaseConfigured, supabase } from './supabase';
+import { isSupabaseConfigured, supabase, initialAuthType, initialAuthError, initialAuthTokenHash } from './supabase';
 import { tapSuccess } from './haptics';
 import { dispMember, idForMember } from './members';
 import { setGlobalFontScale, CONTENT_SCALE } from './textScale';
@@ -126,6 +126,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } catch (e) {}
 
       if (CLOUD_MODE) {
+        // Odkaz z e-mailu byl neplatný nebo vypršel (Supabase to vrací v hashi)
+        if (initialAuthError) {
+          clearResetParam();
+          showToast('Odkaz z e-mailu už neplatí – požádej o nový');
+        }
+        // Odkaz „obnova hesla" z e-mailu: jednorázový token vyměníme za session
+        // ještě před čtením přihlášení, ať se rovnou ukáže obrazovka nového hesla.
+        if (initialAuthTokenHash && initialAuthType === 'recovery') {
+          try {
+            await api.authApi.verifyRecoveryToken(initialAuthTokenHash);
+          } catch (e) {
+            showToast('Odkaz na obnovu hesla už neplatí – požádej o nový');
+          }
+          clearResetParam();
+        }
         api.authApi.isGoogleEnabled().then((ge) => setState((s) => ({ ...s, googleEnabled: ge }))).catch(() => {});
         api.authApi.isAppleAvailable().then((aa) => setState((s) => ({ ...s, appleAvailable: aa }))).catch(() => {});
         try {
@@ -205,11 +220,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return m ? m[1].toUpperCase() : null;
   }
 
-  // Přišli jsme z e-mailového odkazu na obnovu hesla? (jen web – odkaz vede
-  // na /app/?reset=1; session z odkazu zpracuje supabase klient sám)
+  // Přišli jsme z e-mailového odkazu na obnovu hesla? Poznáme to podle typu
+  // odkazu zachyceného při načtení stránky (viz supabase.ts) – Supabase vrací
+  // `type=recovery` v hashi a session z odkazu zpracuje klient sám.
   function wantsPasswordReset(): boolean {
-    if (Platform.OS !== 'web' || typeof window === 'undefined') return false;
-    try { return new URLSearchParams(window.location.search).get('reset') === '1'; } catch (e) { return false; }
+    return initialAuthType === 'recovery';
   }
   function clearResetParam() {
     if (Platform.OS !== 'web' || typeof window === 'undefined') return;
@@ -217,6 +232,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const u = new URL(window.location.href);
       u.searchParams.delete('reset');
       u.searchParams.delete('code');
+      u.searchParams.delete('token_hash');
+      u.searchParams.delete('type');
+      u.hash = '';
       window.history.replaceState({}, '', u.toString());
     } catch (e) {}
   }

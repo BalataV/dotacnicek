@@ -122,6 +122,15 @@ export async function resetPassword(email: string) {
   if (error) throw error;
 }
 
+// Ověří jednorázový token z odkazu „obnova hesla" a přihlásí uživatele.
+// Na rozdíl od výchozího Supabase přesměrování nepotřebuje PKCE ověřovatel,
+// takže odkaz funguje i v jiném prohlížeči nebo na jiném zařízení.
+export async function verifyRecoveryToken(tokenHash: string) {
+  const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' });
+  if (error) throw error;
+  return data.session;
+}
+
 // Nastaví nové heslo přihlášeného uživatele (po příchodu z odkazu na obnovu)
 export async function updatePassword(password: string) {
   const { error } = await supabase.auth.updateUser({ password });
