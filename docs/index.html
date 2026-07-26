@@ -86,6 +86,17 @@
     .btn-accent { background: var(--accent2); color: #fff; }
     .btn-block { display: block; width: 100%; margin-bottom: 14px; }
 
+    /* Oficiální odznaky obchodů. Samotnou grafiku od Applu a Googlu neupravujeme
+       (jejich pravidla to zakazují) — jen ji umisťujeme a na najetí myší
+       nadzvedneme. Výška 52 px splňuje minimum 40 px pro web. */
+    .stores { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+    .store-badge { display: inline-block; line-height: 0; transition: transform .15s var(--ease); }
+    .store-badge img { height: 52px; width: auto; display: block; }
+    .store-badge:hover { transform: translateY(-4px); }
+    .store-badge:active { transform: translateY(0); }
+    .stores-center { justify-content: center; }
+    @media (max-width: 380px) { .store-badge img { height: 46px; } }
+
     /* ===== Animace ===== */
     @keyframes floaty   { 0%,100% { transform: translateY(0) rotate(2.5deg); } 50% { transform: translateY(-14px) rotate(2.5deg); } }
     @keyframes bob      { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
@@ -374,8 +385,15 @@
           <li><span class="num">2</span><span>Otevři appku a dej <strong>Připojit se do skupiny</strong>.</span></li>
           <li><span class="num">3</span><span>Zadej kód <strong id="codeInline">——————</strong> a hotovo.</span></li>
         </ol>
-        <a id="playInvite" class="btn btn-accent btn-block" href="#" target="_blank" rel="noopener">▶️ Stáhnout z Google Play</a>
-        <a id="webInvite" class="btn btn-block" href="#" target="_blank" rel="noopener">🌐 Otevřít webovou verzi (iPhone)</a>
+        <div class="stores stores-center" style="margin-bottom:14px">
+          <a class="store-badge" id="appleInvite" href="#" target="_blank" rel="noopener">
+            <img src="img/appstore-cs.svg" alt="Stáhnout v App Store" width="119" height="40" />
+          </a>
+          <a class="store-badge" id="playInvite" href="#" target="_blank" rel="noopener">
+            <img src="img/googleplay-cs.png" alt="Nyní na Google Play" width="646" height="250" />
+          </a>
+        </div>
+        <a id="webInvite" class="btn btn-block" href="#" target="_blank" rel="noopener">🌐 Otevřít webovou verzi</a>
       </div>
 
       <footer>
@@ -404,7 +422,7 @@
           </svg></button>
           <a class="name" href="/">Dotačníček</a>
         </div>
-        <a class="btn btn-accent" id="playTop" href="#" target="_blank" rel="noopener">▶️ Google Play</a>
+        <a class="btn btn-accent" href="#stahnout">⬇️ Stáhnout</a>
       </div>
     </div>
 
@@ -415,11 +433,16 @@
           <span class="speech" id="quip">Čau lidi! 👋</span>
           <h1>Kdo komu dluží?<br /><span class="hi">Spočítám to za vás.</span></h1>
           <p class="sub">Dotačníček rozdělí společné útraty s partou, spolubydlícími, na chatě i na dovolené. Bez hádek, bez tabulek, bez počítání na ubrousku. Sorry jako.</p>
-          <div class="cta">
-            <a class="btn btn-accent" id="playHero" href="#" target="_blank" rel="noopener">▶️ Stáhnout z Google Play</a>
-            <a class="btn" id="webHero" href="#" target="_blank" rel="noopener">🌐 Webová verze (iPhone)</a>
+          <div class="cta stores">
+            <a class="store-badge" id="appleHero" href="#" target="_blank" rel="noopener">
+              <img src="img/appstore-cs.svg" alt="Stáhnout v App Store" width="119" height="40" />
+            </a>
+            <a class="store-badge" id="playHero" href="#" target="_blank" rel="noopener">
+              <img src="img/googleplay-cs.png" alt="Nyní na Google Play" width="646" height="250" />
+            </a>
           </div>
-          <p class="note">Zdarma. Bez reklam. Synchronizace v reálném čase.</p>
+          <p class="note">Zdarma. Bez reklam. Synchronizace v reálném čase.<br />
+            Nechceš nic instalovat? Zkus <a id="webHero" href="#" target="_blank" rel="noopener" style="font-weight:800;color:var(--accent)">webovou verzi</a>.</p>
         </div>
         <div class="shot"><img src="img/shot-uvod.png" alt="Úvodní obrazovka aplikace Dotačníček" width="640" height="1138" /></div>
       </div>
@@ -562,7 +585,7 @@
         </details>
         <details class="faq reveal" style="--d:.06s">
           <summary>Funguje na iPhonu?</summary>
-          <div class="a">Zatím přes <a href="app/" target="_blank" rel="noopener">webovou verzi</a> — otevři ji v Safari a přidej na plochu (Sdílet → Přidat na plochu). Nativní appka pro App Store se připravuje.</div>
+          <div class="a">Ano — Dotačníček je na App Storu jako plnohodnotná iPhone appka, zdarma. Potřebuješ iOS 15.1 nebo novější. Kdo nechce nic instalovat, může použít <a href="app/" target="_blank" rel="noopener">webovou verzi</a>: otevři ji v Safari a přidej na plochu (Sdílet → Přidat na plochu).</div>
         </details>
         <details class="faq reveal" style="--d:.12s">
           <summary>Vidí moje útraty někdo cizí?</summary>
@@ -575,15 +598,22 @@
       </div>
     </section>
 
-    <section class="block">
+    <section class="block" id="stahnout" style="scroll-margin-top:90px">
       <div class="wrap">
         <div class="card final reveal">
           <h2>Stahuj, rozděluj, makej.</h2>
           <p>Sorry jako, ale ubrousek už nebude potřeba.</p>
-          <div class="cta">
-            <a class="btn btn-accent" id="playFinal" href="#" target="_blank" rel="noopener">▶️ Stáhnout z Google Play</a>
-            <a class="btn" id="webFinal" href="#" target="_blank" rel="noopener">🌐 Otevřít webovou verzi</a>
+          <div class="cta stores stores-center">
+            <a class="store-badge" id="appleFinal" href="#" target="_blank" rel="noopener">
+              <img src="img/appstore-cs.svg" alt="Stáhnout v App Store" width="119" height="40" />
+            </a>
+            <a class="store-badge" id="playFinal" href="#" target="_blank" rel="noopener">
+              <img src="img/googleplay-cs.png" alt="Nyní na Google Play" width="646" height="250" />
+            </a>
           </div>
+          <p style="margin-top:18px;margin-bottom:0;font-size:14px;opacity:.6;font-weight:700">
+            Nebo rovnou <a id="webFinal" href="#" target="_blank" rel="noopener" style="font-weight:800;color:var(--accent)">webová verze</a> — bez instalace.
+          </p>
         </div>
       </div>
     </section>
@@ -604,10 +634,14 @@
 
   <script>
     // === Odkazy na stažení ===
-    // Google Play (Android) + webová verze (iPhone / kdokoli, jde přidat na plochu).
-    // Play odkaz začne fungovat, jakmile appku schválí Google Play.
-    // POZOR: package zůstává com.balata.dotacnik (zamčený v Play Console).
+    // App Store (iOS), Google Play (Android) a webová verze pro kohokoli.
+    // POZOR: android package zůstává com.balata.dotacnik (zamčený v Play Console),
+    // zatímco iOS bundle je com.balata.dotacnicek — nejsou stejné.
+    // Play odkaz začne fungovat, až appku schválí Google Play.
     var PLAY_URL = 'https://play.google.com/store/apps/details?id=com.balata.dotacnik';
+    // App Store: adresa bez země — Apple sám přesměruje na obchod podle
+    // lokality návštěvníka. iOS bundle je com.balata.dotacnicek.
+    var APPSTORE_URL = 'https://apps.apple.com/app/id6794624597';
     var WEB_URL = 'https://dotacnicek.cz/app/';
 
     // Uživatel si nepřeje animace? Respektujeme to a nic nespouštíme.
@@ -617,9 +651,13 @@
       var params = new URLSearchParams(window.location.search);
       var code = (params.get('g') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 
-      ['playInvite', 'playTop', 'playHero', 'playFinal'].forEach(function (id) {
+      ['playInvite', 'playHero', 'playFinal'].forEach(function (id) {
         var el = document.getElementById(id);
         if (el) el.href = PLAY_URL;
+      });
+      ['appleInvite', 'appleHero', 'appleFinal'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.href = APPSTORE_URL;
       });
       ['webInvite', 'webHero', 'webFinal'].forEach(function (id) {
         var el = document.getElementById(id);

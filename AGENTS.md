@@ -48,13 +48,17 @@ na **„Dotačníček"** (2026-07, doména dotacnik.cz byla zabraná).
 - **GDPR:** `PRIVACY.md` (šablona) + hostovaná verze `docs/privacy.html`. V Profilu odkaz (`PRIVACY_URL` z `src/config.js`) + „Smazat účet". Kontaktní e-mail: `podpora@dotacnicek.cz` (schránka u Zoneru).
 - **Confirm email ZAPNUTO** (2026-07-15, Supabase). Registrace bez session → toast „Zkontroluj e-mail"; login s nepotvrzeným e-mailem má vlastní hlášku. **Obnova hesla:** Login → „Zapomenuté heslo" → `resetPasswordForEmail` s redirectem `LANDING_BASE/app/?reset=1`; web appka při startu s `?reset=1` + session ukáže obrazovku `reset_password` (`submitNewPassword`). SMTP (Zoner) + CZ šablony e-mailů: `store/supabase-emaily.md` — nastavit v Supabase před vydáním!
 - **Landing page:** `docs/` (GitHub Pages) – `index.html` (úvod + pozvánka přes `?g=KÓD` → deep link `dotacnicek://join/KÓD`), `privacy.html`. URL je v `src/config.js` (`LANDING_BASE`). Sdílecí odkaz z appky míří sem. Návod k nasazení + EAS buildu: `NASAZENI.md`.
-- **Build:** `eas.json` hotový (profil `preview` = Android APK, `production` = app-bundle). `app.json`: `android.package` = **`com.balata.dotacnik`** (NEMĚNIT — zamčené existující appkou v Play Console, u které je nahraný AAB; package je pro uživatele neviditelný), `ios.bundleIdentifier` = `com.balata.dotacnicek` (Apple ještě neregistrováno, nový název OK). `eas build:configure` doplní `projectId`.
+- **Build:** `eas.json` hotový (profil `preview` = Android APK, `production` = app-bundle). `app.json`: `android.package` = **`com.balata.dotacnik`** (NEMĚNIT — zamčené existující appkou v Play Console, u které je nahraný AAB; package je pro uživatele neviditelný), `ios.bundleIdentifier` = `com.balata.dotacnicek` (POZOR: NENÍ shodný s android package). `eas build:configure` doplní `projectId`.
 
 ## Právní (důležité)
 - Appka paroduje žijící veřejnou osobu (maskot + hlášky). Přejmenování na „Dotačníček" sneslo příjmení z názvu, ale maskot + poznatelné hlášky stále nesou riziko (ochrana osobnosti §81+ obč. zák., stažení z obchodů za impersonaci). Před veřejným vydáním nechat schválit advokátem.
 
+## Stav vydání (2026-07-26)
+- **App Store: SCHVÁLENO A VENKU.** iOS 1.0, Apple ID **6794624597**, bundle `com.balata.dotacnicek`, zdarma, min. iOS 15.1. Odkaz bez země (Apple přesměruje sám): `https://apps.apple.com/app/id6794624597`. Pozor: krátce po vydání je appka jen v části obchodů (US ano, CZ ještě ne) — propagace napříč storefronty trvá až ~24 h. TestFlight NENÍ pro veřejné vydání potřeba (na rozdíl od povinného uzavřeného testování u Googlu).
+- **Google Play: zatím NEVYDÁNO** — odkaz `com.balata.dotacnik` vrací 404. Odznak na webu už na něj míří, začne fungovat po schválení.
+
 ## Zbývá
-Dokončit Google v buildu, vydání do obchodů. Analýza: `ANALYZA.md`.
+Dokončit vydání na Google Play. Analýza: `ANALYZA.md`.
 **Před cloud testem spusť v Supabase SQL editoru postupně: `migration_names.sql`, `migration_split_currency.sql`, `migration_realtime.sql`, `migration_member_ids.sql`, `migration_categories.sql`, `migration_push.sql`.**
 
 ## Rozšíření (2026-06, „velký balík")
