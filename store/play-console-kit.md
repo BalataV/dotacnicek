@@ -43,6 +43,16 @@ Play Console → **Create app**
 https://dotacnicek.cz/privacy.html
 ```
 
+A v **Data safety** (Zabezpečení údajů) URL pro smazání účtu ▶ VLOŽ:
+```
+https://dotacnicek.cz/delete-account.html
+```
+
+> ⚠️ VŽDY vlastní doménu `dotacnicek.cz`, NIKDY `balatav.github.io/...`.
+> Po přejmenování repa z `dotacnik` na `dotacnicek` staré github.io adresy
+> vrací 404 a Google kvůli tomu zamítl vydání (2026-07). Vlastní doména
+> přejmenování repa přežije.
+
 ## B2. App access
 Vyber **„All or some functionality is restricted"** → **Add new instructions**:
 
