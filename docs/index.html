@@ -16,25 +16,34 @@
   <link rel="icon" href="img/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
 
   <style>
     :root {
       --bg: #FFD60A;
+      --bg2: #FFE680;
       --card: #FFFFFF;
       --ink: #15233B;
       --muted: #7A839A;
       --accent: #1D5FD8;
       --accent2: #FF5A36;
       --good: #1FA06A;
+      --bad: #E23B2E;
+      --ease: cubic-bezier(.2,.8,.3,1);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
       background: var(--bg);
+      /* jemný puntíkovaný rastr jako v appce */
+      background-image: radial-gradient(rgba(0,0,0,.07) 1.5px, transparent 1.5px);
+      background-size: 22px 22px;
       color: var(--ink);
       font-family: 'Nunito', system-ui, sans-serif;
       min-height: 100vh;
+      /* POZOR: sem nedávat overflow-x:hidden — z body by se stal scroll kontejner,
+         window.scrollY by zamrzlo na nule a odkrývání při scrollu i stín pod
+         lištou by přestaly fungovat. Přetékající prvky si clipuje každý sám. */
     }
     h1, h2, h3, .display { font-family: 'Baloo 2', cursive; }
     img { max-width: 100%; height: auto; display: block; }
@@ -50,6 +59,9 @@
       box-shadow: 6px 6px 0 var(--ink);
       padding: 24px;
     }
+    /* Karta, která na najetí myší povyskočí */
+    .card.lift { transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+    .card.lift:hover { transform: translate(-3px, -3px); box-shadow: 10px 10px 0 var(--ink); }
 
     /* Tlačítka ve stylu appky */
     .btn {
@@ -64,33 +76,86 @@
       border-radius: 14px;
       box-shadow: 4px 4px 0 var(--ink);
       cursor: pointer;
-      transition: transform 0.05s, box-shadow 0.05s;
+      transition: transform .12s var(--ease), box-shadow .12s var(--ease);
       background: var(--card);
       color: var(--ink);
     }
+    .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
     .btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink); }
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-accent { background: var(--accent2); color: #fff; }
     .btn-block { display: block; width: 100%; margin-bottom: 14px; }
 
+    /* ===== Animace ===== */
+    @keyframes floaty   { 0%,100% { transform: translateY(0) rotate(2.5deg); } 50% { transform: translateY(-14px) rotate(2.5deg); } }
+    @keyframes bob      { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+    @keyframes pop      { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes coinFall { 0% { transform: translateY(-40px) rotate(0); opacity: 0; }
+                          10% { opacity: 1; }
+                          100% { transform: translateY(105vh) rotate(600deg); opacity: 0; } }
+    /* Jednorázový déšť mincí — délku pádu si každý déšť nastaví přes --fall */
+    @keyframes coinDrop { 0% { transform: translateY(-30px) rotate(0); opacity: 0; }
+                          12% { opacity: 1; }
+                          85% { opacity: 1; }
+                          100% { transform: translateY(var(--fall, 420px)) rotate(560deg); opacity: 0; } }
+    @keyframes marquee  { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @keyframes wiggle   { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-7deg); } 75% { transform: rotate(7deg); } }
+    @keyframes slideIn  { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+    @keyframes underline{ from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+    /* Odkrývání při scrollu */
+    .reveal { opacity: 0; transform: translateY(26px); transition: opacity .6s var(--ease), transform .6s var(--ease); transition-delay: var(--d, 0s); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* Padající mince (hero) */
+    .coins { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+    .coin {
+      position: absolute; top: -40px;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #FFF0B0, #E0A800);
+      border: 3px solid var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 12px; color: #7a5a00;
+      animation: coinFall linear infinite;
+      opacity: .55; /* ať se nepletou do nadpisu, jsou jen kulisa */
+    }
+
     /* ===== Horní lišta ===== */
-    .topbar { padding: 18px 0; }
+    .topbar { position: sticky; top: 0; z-index: 60; padding: 14px 0; background: var(--bg); transition: box-shadow .25s var(--ease), padding .25s var(--ease); }
+    .topbar.stuck { box-shadow: 0 3px 0 var(--ink); padding: 8px 0; }
     .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand { display: flex; align-items: center; gap: 12px; }
     .brand .logo {
       width: 52px; height: 52px; border-radius: 26px; background: var(--card);
       border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
       display: flex; align-items: center; justify-content: center;
+      transition: transform .2s var(--ease);
+      padding: 0; cursor: pointer; font: inherit; color: inherit;
+      -webkit-tap-highlight-color: transparent;
     }
-    .brand .name { font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 26px; letter-spacing: -0.5px; }
-    .topbar .btn { font-size: 15px; padding: 10px 16px; }
+    .brand .logo:hover { animation: wiggle .5s var(--ease); }
+    .brand .logo.poked { animation: wiggle .4s var(--ease); }
+    .brand .name { font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 26px; letter-spacing: -0.5px; text-decoration: none; }
+    .topbar .btn { font-size: 15px; padding: 10px 16px; white-space: nowrap; }
+    @media (max-width: 420px) {
+      .topbar .btn { font-size: 13px; padding: 9px 12px; }
+      .brand .name { font-size: 22px; }
+      .brand .logo { width: 44px; height: 44px; }
+    }
 
     /* ===== Hero ===== */
-    .hero { padding: 30px 0 50px; }
-    .hero .wrap { display: grid; grid-template-columns: 1fr; gap: 34px; align-items: center; }
+    .hero { position: relative; padding: 26px 0 46px; }
+    .hero .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr; gap: 34px; align-items: center; }
     @media (min-width: 880px) { .hero .wrap { grid-template-columns: 1.15fr 0.85fr; } }
-    .hero h1 { font-size: clamp(34px, 5.4vw, 54px); font-weight: 700; line-height: 1.08; letter-spacing: -1px; }
-    .hero .sub { margin-top: 14px; font-size: 18px; font-weight: 700; opacity: 0.75; line-height: 1.5; max-width: 480px; }
+    .hero h1 { font-size: clamp(34px, 5.4vw, 56px); font-weight: 700; line-height: 1.08; letter-spacing: -1px; }
+    /* žlutý „zvýrazňovač" pod klíčovým slovem, který se vykreslí sám */
+    .hi { position: relative; display: inline-block; }
+    .hi::after {
+      content: ""; position: absolute; left: -4px; right: -4px; bottom: 4px; height: 12px; z-index: -1;
+      background: var(--accent2); border-radius: 6px; opacity: .85;
+      transform-origin: left center; animation: underline .7s var(--ease) .5s both;
+    }
+    .hero .sub { margin-top: 16px; font-size: 18px; font-weight: 700; opacity: 0.75; line-height: 1.5; max-width: 480px; }
     .hero .cta { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 14px; }
     .hero .note { margin-top: 12px; font-size: 13px; font-weight: 700; opacity: 0.55; }
     .hero .shot {
@@ -99,22 +164,37 @@
       box-shadow: 10px 10px 0 var(--ink);
       transform: rotate(2.5deg);
       background: var(--card);
+      animation: floaty 6s ease-in-out infinite;
     }
 
-    /* Bublina "Čau lidi!" */
+    /* Bublina s hláškou — text se sám střídá */
     .speech {
-      display: inline-block; position: relative; background: var(--card);
+      display: inline-flex; align-items: center; position: relative; background: var(--card);
       border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink);
-      border-radius: 16px; padding: 8px 16px; font-family: 'Baloo 2', cursive;
+      border-radius: 16px; padding: 9px 17px; font-family: 'Baloo 2', cursive;
       font-weight: 600; font-size: 17px; margin-bottom: 16px;
+      min-height: 44px;
     }
+    .speech::after {
+      content: ""; position: absolute; left: 18px; bottom: -9px; width: 12px; height: 12px;
+      background: var(--card); border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink);
+      transform: rotate(45deg);
+    }
+    .speech.pop { animation: pop .35s var(--ease); }
 
     /* ===== Sekce ===== */
     section.block { padding: 34px 0; }
     .sec-title { font-size: clamp(26px, 3.6vw, 36px); font-weight: 700; letter-spacing: -0.5px; margin-bottom: 22px; }
 
+    /* Běžící pás s hláškami */
+    .ticker { overflow: hidden; background: var(--ink); color: var(--bg); border-top: 3px solid var(--ink); border-bottom: 3px solid var(--ink); padding: 12px 0; }
+    .ticker-track { display: flex; width: max-content; animation: marquee 42s linear infinite; }
+    .ticker:hover .ticker-track { animation-play-state: paused; }
+    .ticker span { font-family: 'Baloo 2', cursive; font-weight: 600; font-size: 19px; padding: 0 26px; white-space: nowrap; }
+    .ticker span::after { content: "•"; margin-left: 26px; opacity: .45; }
+
     /* Jak to funguje */
-    .steps3 { display: grid; grid-template-columns: 1fr; gap: 18px; }
+    .steps3 { display: grid; grid-template-columns: 1fr; gap: 22px; }
     @media (min-width: 720px) { .steps3 { grid-template-columns: repeat(3, 1fr); } }
     .step-card { position: relative; padding-top: 30px; }
     .step-card .badge {
@@ -123,9 +203,35 @@
       border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
       display: flex; align-items: center; justify-content: center;
       font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 20px;
+      transition: transform .25s var(--ease);
     }
+    .step-card:hover .badge { transform: rotate(-10deg) scale(1.12); }
     .step-card h3 { font-size: 20px; margin-bottom: 8px; }
     .step-card p { font-weight: 700; opacity: 0.7; line-height: 1.5; font-size: 15px; }
+
+    /* Vrstva pro déšť mincí nad libovolnou sekcí */
+    .burst { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 20; }
+    .burst .coin { animation-name: coinDrop; animation-iteration-count: 1; animation-fill-mode: forwards; opacity: 1; }
+
+    /* ===== Živá ukázka výpočtu ===== */
+    .demo { position: relative; display: grid; grid-template-columns: 1fr; gap: 20px; align-items: start; }
+    @media (min-width: 820px) { .demo { grid-template-columns: 1fr 1fr; } }
+    .demo-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+    .demo-head h3 { font-size: 21px; }
+    .chip { font-family: 'Baloo 2', cursive; font-weight: 600; font-size: 13px; background: var(--bg); border: 2px solid var(--ink); border-radius: 20px; padding: 4px 12px; }
+    .row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 2px solid rgba(0,0,0,.08); }
+    .row:last-child { border-bottom: none; }
+    .av { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--ink); color: #fff; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+    .row .who { flex: 1; min-width: 0; }
+    .row .who b { display: block; font-size: 15px; }
+    .row .who small { font-weight: 700; color: var(--muted); font-size: 12px; }
+    .row .amt { font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 17px; white-space: nowrap; }
+    .res-row { animation: slideIn .45s var(--ease) both; }
+    .res-empty { text-align: center; padding: 26px 10px; }
+    .res-empty .big { font-size: 42px; margin-bottom: 8px; }
+    .res-empty p { font-weight: 700; color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .verdict { margin-top: 14px; background: var(--good); color: #fff; border: 3px solid var(--ink); border-radius: 14px; padding: 12px 14px; font-family: 'Baloo 2', cursive; font-weight: 600; font-size: 16px; text-align: center; box-shadow: 3px 3px 0 var(--ink); animation: pop .4s var(--ease) both; }
+    .count { font-variant-numeric: tabular-nums; }
 
     /* Funkce */
     .grid6 { display: grid; grid-template-columns: 1fr; gap: 18px; }
@@ -135,8 +241,9 @@
     .feat .emoji {
       width: 54px; height: 54px; border-radius: 16px; background: var(--bg);
       border: 3px solid var(--ink); display: flex; align-items: center; justify-content: center;
-      font-size: 28px;
+      font-size: 28px; transition: transform .25s var(--ease);
     }
+    .feat:hover .emoji { transform: rotate(-8deg) scale(1.1); }
     .feat h3 { font-size: 19px; }
     .feat p { font-weight: 700; opacity: 0.7; line-height: 1.5; font-size: 15px; }
 
@@ -146,7 +253,9 @@
       width: 210px; flex: none; scroll-snap-align: center;
       border: 4px solid var(--ink); border-radius: 24px; box-shadow: 8px 8px 0 var(--ink);
       background: var(--card);
+      transition: transform .25s var(--ease), box-shadow .25s var(--ease);
     }
+    .shots img:hover { transform: translateY(-8px) rotate(-1.5deg); box-shadow: 12px 12px 0 var(--ink); }
 
     /* Satira */
     .satire { background: var(--card); }
@@ -158,22 +267,25 @@
       cursor: pointer; list-style: none; font-family: 'Baloo 2', cursive; font-weight: 600; font-size: 18px;
       background: var(--card); border: 3px solid var(--ink); border-radius: 14px;
       box-shadow: 4px 4px 0 var(--ink); padding: 14px 18px;
+      transition: transform .15s var(--ease), box-shadow .15s var(--ease);
     }
+    details.faq summary:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); }
     details.faq summary::-webkit-details-marker { display: none; }
-    details.faq summary::before { content: "▸ "; }
-    details.faq[open] summary::before { content: "▾ "; }
-    details.faq .a { padding: 14px 18px 4px; font-weight: 700; opacity: 0.75; line-height: 1.55; font-size: 15px; }
+    details.faq summary::before { content: "▸ "; display: inline-block; transition: transform .2s var(--ease); }
+    details.faq[open] summary::before { content: "▸ "; transform: rotate(90deg); }
+    details.faq .a { padding: 14px 18px 4px; font-weight: 700; opacity: 0.75; line-height: 1.55; font-size: 15px; animation: slideIn .3s var(--ease); }
     details.faq .a a { font-weight: 800; }
 
     /* Závěrečné CTA */
-    .final { text-align: center; padding: 30px 24px; }
-    .final h2 { font-size: clamp(24px, 3.4vw, 32px); margin-bottom: 8px; }
+    .final { text-align: center; padding: 34px 24px; position: relative; overflow: hidden; }
+    .final h2 { font-size: clamp(24px, 3.4vw, 34px); margin-bottom: 8px; }
     .final p { font-weight: 700; opacity: 0.7; margin-bottom: 20px; }
     .final .cta { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
 
     footer { padding: 34px 0 44px; text-align: center; }
     footer .links { display: flex; flex-wrap: wrap; gap: 8px 22px; justify-content: center; margin-bottom: 12px; }
-    footer a { font-weight: 800; font-size: 14px; }
+    footer a { font-weight: 800; font-size: 14px; text-decoration: none; border-bottom: 2px solid transparent; transition: border-color .2s; }
+    footer a:hover { border-bottom-color: var(--ink); }
     footer .copy { font-size: 13px; font-weight: 700; opacity: 0.55; }
 
     /* ===== Pozvánka (?g=KÓD) ===== */
@@ -185,6 +297,7 @@
       width: 76px; height: 76px; border-radius: 38px; background: var(--bg);
       border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink);
       display: flex; align-items: center; justify-content: center; margin: 0 auto 18px;
+      animation: bob 3.5s ease-in-out infinite;
     }
     .code-box {
       background: var(--bg); border: 3px dashed var(--ink); border-radius: 14px;
@@ -202,7 +315,29 @@
     }
     .hint { font-size: 13px; opacity: 0.55; font-weight: 700; text-align: center; margin-top: 6px; line-height: 1.5; }
     .hidden { display: none !important; }
+
+    /* Kdo nechce animace, ten je mít nebude */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+      .coins { display: none; }
+    }
   </style>
+
+  <!-- Bez JavaScriptu by produktová stránka zůstala schovaná (odkrývá ji skript)
+       a odkrývané prvky průhledné. Tady to narovnáme, ať se stránka přečte vždy. -->
+  <noscript>
+    <style>
+      #home { display: block !important; }
+      .reveal { opacity: 1 !important; transform: none !important; }
+      .coins { display: none; }
+    </style>
+  </noscript>
 </head>
 <body>
 
@@ -252,10 +387,12 @@
   <!-- ===== PRODUKTOVÁ STRÁNKA ===== -->
   <div id="home" class="hidden">
 
-    <div class="topbar">
+    <div class="topbar" id="topbar">
       <div class="wrap">
-        <a class="brand" href="/">
-          <span class="logo"><svg viewBox="0 0 64 64" width="36" height="36" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Čáp">
+        <div class="brand">
+          <!-- Logo je tlačítko, ne odkaz — pět rychlých ťuknutí spustí easter egg
+               (stejně jako šťouchnutí do maskota v appce). Domů vede název vedle. -->
+          <button class="logo" id="eggBtn" type="button" aria-label="Šťouchni do maskota"><svg viewBox="0 0 64 64" width="36" height="36" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Čáp">
             <path d="M27 46 L25 61 M35 46 L37 61" stroke="#E4572E" stroke-width="3.5" stroke-linecap="round" fill="none"/>
             <ellipse cx="29" cy="36" rx="16" ry="11" fill="#fff" stroke="#15233B" stroke-width="3"/>
             <path d="M13 35 q7 4 13 1 l-4 8 q-7 -1 -9 -9 z" fill="#15233B"/>
@@ -264,18 +401,19 @@
             <circle cx="47" cy="15" r="5.5" fill="#fff" stroke="#15233B" stroke-width="3"/>
             <circle cx="48.5" cy="14" r="1.5" fill="#15233B"/>
             <path d="M51 14 L63 11 L52 19 Z" fill="#E4572E" stroke="#15233B" stroke-width="1.5" stroke-linejoin="round"/>
-          </svg></span>
-          <span class="name">Dotačníček</span>
-        </a>
+          </svg></button>
+          <a class="name" href="/">Dotačníček</a>
+        </div>
         <a class="btn btn-accent" id="playTop" href="#" target="_blank" rel="noopener">▶️ Google Play</a>
       </div>
     </div>
 
     <section class="hero">
+      <div class="coins" id="coins" aria-hidden="true"></div>
       <div class="wrap">
         <div>
-          <span class="speech">Čau lidi! 👋</span>
-          <h1>Kdo komu dluží?<br />Spočítám to za vás.</h1>
+          <span class="speech" id="quip">Čau lidi! 👋</span>
+          <h1>Kdo komu dluží?<br /><span class="hi">Spočítám to za vás.</span></h1>
           <p class="sub">Dotačníček rozdělí společné útraty s partou, spolubydlícími, na chatě i na dovolené. Bez hádek, bez tabulek, bez počítání na ubrousku. Sorry jako.</p>
           <div class="cta">
             <a class="btn btn-accent" id="playHero" href="#" target="_blank" rel="noopener">▶️ Stáhnout z Google Play</a>
@@ -287,21 +425,69 @@
       </div>
     </section>
 
+    <!-- Běžící pás s hláškami maskota -->
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+
     <section class="block">
       <div class="wrap">
-        <h2 class="sec-title">Jak to funguje</h2>
+        <h2 class="sec-title reveal">Zkus si to hned tady</h2>
+        <div class="demo">
+          <div class="card reveal">
+            <div class="demo-head">
+              <h3>Chata Krkonoše 🏔️</h3>
+              <span class="chip">3 lidi</span>
+            </div>
+            <div class="row">
+              <span class="av" style="background:#1FA06A">P</span>
+              <span class="who"><b>Chata na 2 noci</b><small>Platil Pepa</small></span>
+              <span class="amt">3 000 Kč</span>
+            </div>
+            <div class="row">
+              <span class="av" style="background:#FF5A36">O</span>
+              <span class="who"><b>Velký nákup</b><small>Platil Ota</small></span>
+              <span class="amt">1 500 Kč</span>
+            </div>
+            <div class="row">
+              <span class="av" style="background:#1D5FD8">J</span>
+              <span class="who"><b>Benzín tam a zpět</b><small>Platil Já</small></span>
+              <span class="amt">600 Kč</span>
+            </div>
+            <button class="btn btn-primary btn-block" id="calcBtn" style="margin-top:18px">🧮 Spočítat, kdo komu dluží</button>
+          </div>
+
+          <div class="card reveal" style="--d:.12s">
+            <div class="demo-head">
+              <h3>Kdo komu dluží</h3>
+              <span class="chip" id="demoChip">čeká na výpočet</span>
+            </div>
+            <div id="demoResult">
+              <div class="res-empty">
+                <div class="big">🤷</div>
+                <p>Zatím nic. Ťukni na tlačítko vlevo<br />a ukážu ti, jak to dopadne.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="wrap">
+        <h2 class="sec-title reveal">Jak to funguje</h2>
         <div class="steps3">
-          <div class="card step-card">
+          <div class="card lift step-card reveal">
             <span class="badge">1</span>
             <h3>Založ skupinu</h3>
             <p>Chata, byt, dovolená… Pozvi kamarády odkazem nebo šestimístným kódem. Připojí se jedním ťuknutím.</p>
           </div>
-          <div class="card step-card">
+          <div class="card lift step-card reveal" style="--d:.1s">
             <span class="badge">2</span>
             <h3>Zapisuj útraty</h3>
             <p>Kdo platil, kolik a za koho. Rovným dílem, poměrově, nebo podle přesných cen. Klidně s fotkou účtenky.</p>
           </div>
-          <div class="card step-card">
+          <div class="card lift step-card reveal" style="--d:.2s">
             <span class="badge">3</span>
             <h3>Vyrovnejte se</h3>
             <p>Appka spočítá, kdo komu dluží, a zminimalizuje počet převodů. Místo deseti plateb jedna. Zacvakni a hotovo.</p>
@@ -312,37 +498,37 @@
 
     <section class="block">
       <div class="wrap">
-        <h2 class="sec-title">Co všechno umí</h2>
+        <h2 class="sec-title reveal">Co všechno umí</h2>
         <div class="grid6">
-          <div class="card feat">
+          <div class="card lift feat reveal">
             <span class="emoji">💸</span>
             <h3>Chytré vyrovnání</h3>
             <p>Hladový algoritmus najde nejmenší počet plateb, ať to máte rychle z krku.</p>
           </div>
-          <div class="card feat">
+          <div class="card lift feat reveal" style="--d:.08s">
             <span class="emoji">🧾</span>
             <h3>Fotky účtenek</h3>
             <p>Přilep k výdaji fotku účtenky, ať je jasno, že částka (ne)souhlasí.</p>
           </div>
-          <div class="card feat">
+          <div class="card lift feat reveal" style="--d:.16s">
             <span class="emoji">📊</span>
             <h3>Audit NKÚ</h3>
             <p>Parodická kontrolní zpráva skupiny: struktura výdajů, kategorie a žebříček „Sponzor večera".</p>
           </div>
-          <div class="card feat">
+          <div class="card lift feat reveal" style="--d:.24s">
             <span class="emoji">🌍</span>
             <h3>Více měn</h3>
             <p>CZK, EUR i USD pohromadě, s orientačním přepočtem podle živého kurzu.</p>
           </div>
-          <div class="card feat">
+          <div class="card lift feat reveal" style="--d:.32s">
             <span class="emoji">🔔</span>
             <h3>Notifikace</h3>
             <p>Přidá někdo výdaj nebo splatí dluh? Appka dá hned vědět.</p>
           </div>
-          <div class="card feat">
+          <div class="card lift feat reveal" style="--d:.4s">
             <span class="emoji">🌙</span>
-            <h3>Tmavý režim i zámek</h3>
-            <p>Světlý a tmavý vzhled, volitelná velikost písma a odemykání otiskem či obličejem.</p>
+            <h3>Tmavý režim</h3>
+            <p>Světlý i tmavý vzhled a tři velikosti písma, ať si to přečte i teta na chatě.</p>
           </div>
         </div>
       </div>
@@ -350,7 +536,7 @@
 
     <section class="block">
       <div class="wrap">
-        <h2 class="sec-title">Mrkni dovnitř</h2>
+        <h2 class="sec-title reveal">Mrkni dovnitř</h2>
         <div class="shots">
           <img src="img/shot-prehled.png" alt="Přehled skupin a dluhů" width="640" height="1138" loading="lazy" />
           <img src="img/shot-skupina.png" alt="Detail skupiny s výdaji" width="640" height="1138" loading="lazy" />
@@ -361,7 +547,7 @@
 
     <section class="block">
       <div class="wrap">
-        <div class="card satire">
+        <div class="card satire reveal">
           <p>🎭 <strong>Poctivě přiznáno:</strong> Dotačníček je nezávislá satirická aplikace. Maskot i hlášky jsou karikatura, humor a nadsázka. Aplikace není spojena s žádnou politickou stranou, osobou ani institucí, není jimi provozována ani schválena a nevyjadřuje žádná skutková tvrzení o nikom. Ty peníze tam fakt máme.</p>
         </div>
       </div>
@@ -369,20 +555,20 @@
 
     <section class="block">
       <div class="wrap">
-        <h2 class="sec-title">Časté dotazy</h2>
-        <details class="faq">
+        <h2 class="sec-title reveal">Časté dotazy</h2>
+        <details class="faq reveal">
           <summary>Je Dotačníček zdarma?</summary>
           <div class="a">Ano, úplně. Žádné reklamy, žádné předplatné, žádné skryté poplatky. My tam ty peníze máme.</div>
         </details>
-        <details class="faq">
+        <details class="faq reveal" style="--d:.06s">
           <summary>Funguje na iPhonu?</summary>
           <div class="a">Zatím přes <a href="app/" target="_blank" rel="noopener">webovou verzi</a> — otevři ji v Safari a přidej na plochu (Sdílet → Přidat na plochu). Nativní appka pro App Store se připravuje.</div>
         </details>
-        <details class="faq">
+        <details class="faq reveal" style="--d:.12s">
           <summary>Vidí moje útraty někdo cizí?</summary>
           <div class="a">Ne. Výdaje vidí jen členové tvé skupiny. Detaily najdeš v <a href="privacy.html">zásadách ochrany osobních údajů</a>.</div>
         </details>
-        <details class="faq">
+        <details class="faq reveal" style="--d:.18s">
           <summary>Jak smažu účet?</summary>
           <div class="a">Přímo v appce: Profil → Smazat účet. Krok za krokem to popisuje <a href="delete-account.html">návod na smazání účtu</a>.</div>
         </details>
@@ -391,7 +577,7 @@
 
     <section class="block">
       <div class="wrap">
-        <div class="card final">
+        <div class="card final reveal">
           <h2>Stahuj, rozděluj, makej.</h2>
           <p>Sorry jako, ale ubrousek už nebude potřeba.</p>
           <div class="cta">
@@ -424,6 +610,9 @@
     var PLAY_URL = 'https://play.google.com/store/apps/details?id=com.balata.dotacnik';
     var WEB_URL = 'https://dotacnicek.cz/app/';
 
+    // Uživatel si nepřeje animace? Respektujeme to a nic nespouštíme.
+    var CALM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     (function () {
       var params = new URLSearchParams(window.location.search);
       var code = (params.get('g') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -445,11 +634,246 @@
         // Deep link do appky — appka pozná dotacnicek://join/KÓD
         document.getElementById('openApp').href = 'dotacnicek://join/' + code;
         document.title = 'Pozvánka do skupiny — Dotačníček';
-      } else {
-        // Režim PRODUKTOVÁ STRÁNKA
-        document.getElementById('home').classList.remove('hidden');
+        return; // na pozvánce už nic dalšího neoživujeme
       }
+
+      // Režim PRODUKTOVÁ STRÁNKA
+      document.getElementById('home').classList.remove('hidden');
+      initHome();
     })();
+
+    function initHome() {
+      // --- Střídání hlášek v bublině ---
+      var QUIPS = [
+        'Čau lidi! 👋', 'Sorry jako. 🤷', 'Bude líp. 💸', 'Makáme! 💪',
+        'Zacvakej to. 🪙', 'Jsme premianti! 🏆', 'Kde jsou ty prachy? 🔍',
+        'Já jsem to nečet. 🙈', 'Zapiš to, ať je klid. ✍️'
+      ];
+      var quipEl = document.getElementById('quip');
+      var holdUntil = 0; // do kdy nechat v bublině hlášku z easter eggu
+      if (quipEl && !CALM) {
+        var qi = 0;
+        setInterval(function () {
+          if (Date.now() < holdUntil) return;
+          qi = (qi + 1) % QUIPS.length;
+          quipEl.textContent = QUIPS[qi];
+          quipEl.classList.remove('pop');
+          void quipEl.offsetWidth; // restart animace
+          quipEl.classList.add('pop');
+        }, 3200);
+      }
+
+      // --- Běžící pás ---
+      var TICKER = [
+        'Kdo komu dluží? Spočítám to za vás.', 'Sorry jako.', 'Bude líp.',
+        'Zacvakej to a bude líp.', 'Makáme!', 'Jsme premianti!',
+        'Zapiš to, ať je klid.', 'Kde jsou ty prachy?', 'A nezapomeň na DPH, pahýlku!'
+      ];
+      var track = document.getElementById('tickerTrack');
+      if (track) {
+        // dvakrát za sebou = plynulá smyčka bez švu
+        var html = TICKER.map(function (t) { return '<span>' + t + '</span>'; }).join('');
+        track.innerHTML = html + html;
+      }
+
+      // --- Stín pod lištou po odscrollování ---
+      var topbar = document.getElementById('topbar');
+      if (topbar) {
+        var onScroll = function () {
+          topbar.classList.toggle('stuck', window.scrollY > 8);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+      }
+
+      // --- Odkrývání prvků při scrollu ---
+      var reveals = document.querySelectorAll('.reveal');
+      if (CALM || !('IntersectionObserver' in window)) {
+        reveals.forEach(function (el) { el.classList.add('in'); });
+      } else {
+        // threshold 0 (ne 0.1) — u prvku vyššího než okno by se poměr 0.1 nemusel
+        // nikdy naplnit a obsah by zůstal neviditelný.
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+          });
+        }, { rootMargin: '0px 0px -80px 0px', threshold: 0 });
+        reveals.forEach(function (el) { io.observe(el); });
+
+        // Záchranná brzda: kdyby observer z jakéhokoli důvodu nedoběhl,
+        // po 2,5 s obsah odkryjeme natvrdo. Prázdná stránka je horší než
+        // stránka bez animace.
+        setTimeout(function () {
+          reveals.forEach(function (el) { el.classList.add('in'); });
+        }, 2500);
+      }
+
+      // --- Mince ---
+      var SYMS = ['Kč', 'Kč', 'Kč', '€', '$'];
+      function makeCoin(sym) {
+        var c = document.createElement('div');
+        c.className = 'coin';
+        c.textContent = sym;
+        c.style.left = (4 + Math.random() * 92) + '%';
+        // Velikost měníme rozměry, ne transformem — transform si bere animace
+        // pádu a inline hodnotu by přepsala.
+        var px = Math.round(22 + Math.random() * 20);
+        c.style.width = px + 'px';
+        c.style.height = px + 'px';
+        c.style.fontSize = Math.round(px * 0.36) + 'px';
+        return c;
+      }
+
+      // Trvale padající mince v hlavičce
+      var coins = document.getElementById('coins');
+      if (coins && !CALM) {
+        var count = window.innerWidth < 700 ? 5 : 9;
+        for (var i = 0; i < count; i++) {
+          var c = makeCoin(SYMS[i % SYMS.length]);
+          c.style.animationDuration = (7 + Math.random() * 6) + 's';
+          c.style.animationDelay = (-Math.random() * 12) + 's';
+          coins.appendChild(c);
+        }
+      }
+
+      // Jednorázový déšť mincí nad daným prvkem (jako v appce po zaplacení)
+      function rainCoins(host, howMany) {
+        if (!host || CALM) return;
+        var layer = document.createElement('div');
+        layer.className = 'burst';
+        layer.setAttribute('aria-hidden', 'true');
+        var fall = host.getBoundingClientRect().height + 80;
+        var longest = 0;
+        for (var i = 0; i < howMany; i++) {
+          var c = makeCoin(SYMS[i % SYMS.length]);
+          var dur = 1.1 + Math.random() * 0.9;
+          var del = Math.random() * 0.5;
+          c.style.setProperty('--fall', fall + 'px');
+          c.style.animationDuration = dur + 's';
+          c.style.animationDelay = del + 's';
+          c.style.animationTimingFunction = 'cubic-bezier(.4,.1,.6,1)';
+          longest = Math.max(longest, dur + del);
+          layer.appendChild(c);
+        }
+        host.appendChild(layer);
+        // po dopadu vrstvu uklidíme, ať se nehromadí v DOM
+        setTimeout(function () { layer.remove(); }, (longest + 0.3) * 1000);
+      }
+
+      // --- Easter egg: pět rychlých ťuknutí do maskota v liště ---
+      var EGG = [
+        'Přestaň do mě šťouchat, já makám!',
+        'To lechtá. Sorry jako.',
+        'Audit? Jaký audit? Nic nevím.',
+        'Šťouchej si do opozice!',
+        'Hele, já jsem jen obyčejnej maskot.'
+      ];
+      var eggBtn = document.getElementById('eggBtn');
+      if (eggBtn) {
+        var pokes = 0, pokeTimer = null;
+        eggBtn.addEventListener('click', function () {
+          eggBtn.classList.remove('poked');
+          void eggBtn.offsetWidth;
+          eggBtn.classList.add('poked');
+
+          pokes++;
+          clearTimeout(pokeTimer);
+          pokeTimer = setTimeout(function () { pokes = 0; }, 1200);
+
+          if (pokes >= 5) {
+            pokes = 0;
+            var hero = document.querySelector('.hero');
+            rainCoins(hero, 14);
+            if (quipEl) {
+              // hlášku podržíme, ať ji stihne někdo přečíst
+              holdUntil = Date.now() + 6000;
+              quipEl.textContent = EGG[Math.floor(Math.random() * EGG.length)];
+              quipEl.classList.remove('pop');
+              void quipEl.offsetWidth;
+              quipEl.classList.add('pop');
+            }
+            // ke špičce stránky, ať je bublina i déšť vidět
+            window.scrollTo({ top: 0, behavior: CALM ? 'auto' : 'smooth' });
+          }
+        });
+      }
+
+      // --- Živá ukázka výpočtu ---
+      // Stejná logika jako v appce: bilance každého člena a pak hladové párování
+      // dlužníků s věřiteli, aby převodů bylo co nejmíň.
+      var EXPENSES = [
+        { payer: 'Pepa', amount: 3000 },
+        { payer: 'Ota', amount: 1500 },
+        { payer: 'Já', amount: 600 }
+      ];
+      var MEMBERS = ['Já', 'Ota', 'Pepa'];
+      var COLORS = { 'Já': '#1D5FD8', 'Ota': '#FF5A36', 'Pepa': '#1FA06A' };
+
+      function transfers() {
+        var net = {};
+        MEMBERS.forEach(function (m) { net[m] = 0; });
+        var total = EXPENSES.reduce(function (s, e) { return s + e.amount; }, 0);
+        var share = total / MEMBERS.length;
+        EXPENSES.forEach(function (e) { net[e.payer] += e.amount; });
+        MEMBERS.forEach(function (m) { net[m] -= share; });
+
+        var deb = [], cred = [];
+        MEMBERS.forEach(function (m) {
+          if (net[m] < -0.5) deb.push({ n: m, a: -net[m] });
+          else if (net[m] > 0.5) cred.push({ n: m, a: net[m] });
+        });
+        deb.sort(function (x, y) { return y.a - x.a; });
+        cred.sort(function (x, y) { return y.a - x.a; });
+
+        var out = [], i = 0, j = 0;
+        while (i < deb.length && j < cred.length) {
+          var m = Math.min(deb[i].a, cred[j].a);
+          if (m > 0.5) out.push({ from: deb[i].n, to: cred[j].n, amt: Math.round(m) });
+          deb[i].a -= m; cred[j].a -= m;
+          if (deb[i].a <= 0.5) i++;
+          if (cred[j].a <= 0.5) j++;
+        }
+        return out;
+      }
+
+      function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč'; }
+
+      var calcBtn = document.getElementById('calcBtn');
+      var resultEl = document.getElementById('demoResult');
+      var chipEl = document.getElementById('demoChip');
+
+      if (calcBtn && resultEl) {
+        calcBtn.addEventListener('click', function () {
+          var list = transfers();
+          // naivní varianta: každý výdaj by musel splatit každý ostatní zvlášť
+          var naive = EXPENSES.length * (MEMBERS.length - 1);
+
+          resultEl.innerHTML = '';
+          list.forEach(function (t, idx) {
+            var row = document.createElement('div');
+            row.className = 'row res-row';
+            row.style.animationDelay = (idx * 0.12) + 's';
+            row.innerHTML =
+              '<span class="av" style="background:' + COLORS[t.from] + '">' + (t.from === 'Já' ? 'J' : t.from[0]) + '</span>' +
+              '<span class="who"><b>' + t.from + ' → ' + t.to + '</b><small>jedním převodem</small></span>' +
+              '<span class="amt" style="color:var(--bad)">' + fmt(t.amt) + '</span>';
+            resultEl.appendChild(row);
+          });
+
+          var v = document.createElement('div');
+          v.className = 'verdict';
+          v.style.animationDelay = (list.length * 0.12) + 's';
+          v.innerHTML = '✅ <span class="count">' + naive + '</span> plateb → <span class="count">' + list.length + '</span>. Hotovo, sorry jako.';
+          resultEl.appendChild(v);
+
+          if (chipEl) chipEl.textContent = 'spočítáno za 0,001 s';
+          calcBtn.textContent = '🔁 Spočítat znovu';
+
+          // Zacvakáno → sype se to, stejně jako v appce po zaplacení
+          rainCoins(document.querySelector('.demo'), 12);
+        });
+      }
+    }
   </script>
 </body>
 </html>
