@@ -77,14 +77,6 @@ function GridIcon(color: string) {
   );
 }
 
-function KcIcon(color: string) {
-  return (
-    <View style={{ width: 18, height: 18, borderRadius: 9, borderWidth: 3, borderColor: color, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontFamily: FONTS.display700, fontSize: 8, color }}>Kč</Text>
-    </View>
-  );
-}
-
 function PersonIcon(color: string) {
   return (
     <View style={{ alignItems: 'center' }}>
@@ -160,8 +152,9 @@ export default function Root() {
         {showChrome && (
           <View style={{ backgroundColor: c.card, borderTopWidth: 3, borderTopColor: c.ink, paddingTop: 10, paddingBottom: 11 + insets.bottom }}>
             <View style={{ width: '100%', maxWidth: MAX_W, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingHorizontal: 6 }}>
+              {/* Rozpočet ze spodní lišty odebrán (2026-07-26) – obrazovka zůstává,
+                  vede na ni tlačítko „Rozpočet" v detailu skupiny. */}
               <NavItem label="Přehled" active={sc === 'overview'} color={sc === 'overview' ? c.accent : c.muted} icon={GridIcon} onPress={() => actions.navigate('overview')} />
-              <NavItem label="Rozpočet" active={sc === 'settle'} color={sc === 'settle' ? c.accent : c.muted} icon={KcIcon} onPress={() => actions.navigate('settle')} />
               <NavItem label="Profil" active={sc === 'profile'} color={sc === 'profile' ? c.accent : c.muted} icon={PersonIcon} onPress={() => actions.navigate('profile')} />
             </View>
           </View>

@@ -16,7 +16,9 @@ export default function Settle() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
-      <Text onPress={() => actions.navigate('overview')} accessibilityRole="button" suppressHighlighting style={{ color: c.onbg, fontFamily: FONTS.body800, fontSize: 15, marginBottom: 10 }}>‹ Zpět</Text>
+      {/* Od odebrání záložky ze spodní lišty se sem chodí z detailu skupiny,
+          takže „zpět" vrací tam. Bez vybrané skupiny padáme na Přehled. */}
+      <Text onPress={() => actions.navigate(state.selectedGroup ? 'group' : 'overview')} accessibilityRole="button" suppressHighlighting style={{ color: c.onbg, fontFamily: FONTS.body800, fontSize: 15, marginBottom: 10 }}>‹ Zpět</Text>
       <Text style={{ fontFamily: FONTS.display700, fontSize: 26, color: c.onbg, letterSpacing: -0.5 }}>Rozpočet</Text>
       <Text style={{ fontFamily: FONTS.body800, fontSize: 14, color: c.onbg, opacity: 0.8, marginBottom: 18 }}>
         {hasAny(owe) ? 'Dlužíš celkem ' + fmtMoneyMap(owe) : 'Hotovo! Jsi vyrovnaný.'}

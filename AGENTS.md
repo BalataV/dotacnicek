@@ -22,7 +22,7 @@ na **„Dotačníček"** (2026-07, doména dotacnik.cz byla zabraná).
 - `src/components/ui.js` – `Pushable` (tlačítko s tvrdým stínem), `Avatar`, `Label`, `useColors`. **Gotcha:** `Pushable offset={0}` nekreslí stín (jinak prosvítá pod průhledným tlačítkem).
 - `src/components/Mascot.js` – maskot (karikatura), `Overlays.js` (mince/toast), `Field.js` (input).
 - `src/screens/` – AuthScreens (Onboarding/Login/Register), Overview, CreateGroup, ShareGroup, GroupDetail, AddExpense, ExpenseDetail, Settle, Profile, Privacy (in-app zásady).
-- Spodní lišta: **Přehled · Rozpočet · Profil** (3 záložky, bez plovoucího +). „Rozpočet" = obrazovka Settle (souhrn dluhů napříč skupinami; dřív „Deficit"). Výdaj se přidává tlačítkem v GroupDetail.
+- Spodní lišta: **Přehled · Profil** (2 záložky, bez plovoucího +). Záložka „Rozpočet" ODEBRÁNA 2026-07-26 (uživateli přišla zbytečná) — obrazovka Settle zůstává, jde na ni tlačítko „Rozpočet" v GroupDetail a „zpět" z ní vede na skupinu (dřív na Přehled). Settle = souhrn dluhů napříč skupinami (dřív „Deficit"). Výdaj se přidává tlačítkem v GroupDetail.
 - Systémové „zpět" (hw tlačítko i gesto) řeší `actions.goBack` přes `BackHandler` ve `store.js` (mapa screen→rodič; na overview/onboarding vrací false = zavře appku).
 - `src/supabase.js` – klient (klíče z `app.json` → extra). `src/api/{auth,groups,expenses,storage}.js` – datová vrstva.
 

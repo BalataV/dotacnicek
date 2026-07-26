@@ -264,7 +264,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       smlouva: 'settle',
       add: stateRef.current.editingExpenseId ? 'expense' : 'group',
       expense: 'group',
-      settle: 'overview',
+      settle: stateRef.current.selectedGroup ? 'group' : 'overview',
       choose_identity: 'overview',
       profile: 'overview',
       privacy: 'profile',
