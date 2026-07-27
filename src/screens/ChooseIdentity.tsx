@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { FONTS } from '../theme';
+import { t } from '../i18n';
 import { useApp } from '../store';
 import { useColors, Pushable, Label, Avatar } from '../components/ui';
 import { initial } from '../logic';
@@ -18,8 +19,8 @@ export default function ChooseIdentity() {
   if (!p) {
     return (
       <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <Text onPress={() => actions.navigate('overview')} style={{ color: c.onbg, fontFamily: FONTS.body800, fontSize: 15 }}>‹ Zpět</Text>
-        <Text style={{ fontFamily: FONTS.body700, color: c.onbg, marginTop: 12 }}>Pozvánka vypršela – zkus odkaz znovu.</Text>
+        <Text onPress={() => actions.navigate('overview')} style={{ color: c.onbg, fontFamily: FONTS.body800, fontSize: 15 }}>{t('‹ Zpět')}</Text>
+        <Text style={{ fontFamily: FONTS.body700, color: c.onbg, marginTop: 12 }}>{t('Pozvánka vypršela – zkus odkaz znovu.')}</Text>
       </ScrollView>
     );
   }
@@ -31,27 +32,27 @@ export default function ChooseIdentity() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 28 }} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
-      <Text onPress={() => actions.navigate('overview')} accessibilityRole="button" suppressHighlighting style={{ color: c.onbg, fontFamily: FONTS.body800, fontSize: 15, marginBottom: 12 }}>‹ Zpět</Text>
+      <Text onPress={() => actions.navigate('overview')} accessibilityRole="button" suppressHighlighting style={{ color: c.onbg, fontFamily: FONTS.body800, fontSize: 15, marginBottom: 12 }}>{t('‹ Zpět')}</Text>
 
-      <Text style={{ fontFamily: FONTS.display700, fontSize: 26, color: c.onbg, letterSpacing: -0.5 }}>Kdo jsi?</Text>
+      <Text style={{ fontFamily: FONTS.display700, fontSize: 26, color: c.onbg, letterSpacing: -0.5 }}>{t('Kdo jsi?')}</Text>
       <Text style={{ fontFamily: FONTS.body700, fontSize: 14, color: c.onbg, opacity: 0.65, marginBottom: 20, lineHeight: 20 }}>
-        Připojuješ se do „{p.groupName}". Klepni na svoje jméno v seznamu.
+        {t('Připojuješ se do „{g}". Klepni na svoje jméno v seznamu.', { g: p.groupName })}
       </Text>
 
-      {free.length > 0 && <Label>Vyber svoje jméno</Label>}
+      {free.length > 0 && <Label>{t('Vyber svoje jméno')}</Label>}
       {free.map((m) => (
         <Pushable key={m.name} onPress={() => actions.finishJoin({ claimName: m.name })} disabled={state.busy} offset={3} radius={14} style={{ marginBottom: 10 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: c.card, borderWidth: 3, borderColor: c.ink, borderRadius: 14, paddingVertical: 12, paddingHorizontal: 13 }}>
             <Avatar name={m.name} initial={initial(m.name)} color={colorForMember(m.name)} size={36} fontSize={13} />
             <Text style={{ flex: 1, fontFamily: FONTS.body800, fontSize: 16, color: c.ink }}>{m.name}</Text>
-            <Text style={{ fontFamily: FONTS.display600, fontSize: 14, color: c.accent }}>To jsem já ›</Text>
+            <Text style={{ fontFamily: FONTS.display600, fontSize: 14, color: c.accent }}>{t('To jsem já ›')}</Text>
           </View>
         </Pushable>
       ))}
 
       {taken.length > 0 && (
         <View style={{ marginTop: 6, marginBottom: 4 }}>
-          <Label>Už obsazeno</Label>
+          <Label>{t('Už obsazeno')}</Label>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {taken.map((m) => (
               <View key={m.name} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: c.card, borderWidth: 2, borderColor: c.muted, borderRadius: 11, paddingVertical: 7, paddingHorizontal: 11, opacity: 0.55 }}>
@@ -65,11 +66,11 @@ export default function ChooseIdentity() {
 
       <View style={{ height: 2, backgroundColor: 'rgba(0,0,0,0.08)', marginVertical: 22 }} />
 
-      <Label>Nejsi na seznamu?</Label>
+      <Label>{t('Nejsi na seznamu?')}</Label>
       <Field
         value={newName}
         onChangeText={setNewName}
-        placeholder="Napiš svoje jméno"
+        placeholder={t('Napiš svoje jméno')}
         returnKeyType="go"
         onSubmitEditing={() => { if (newTrim && !dup && !state.busy) actions.finishJoin({ newName: newTrim }); }}
         style={{ marginBottom: 12 }}
@@ -77,11 +78,11 @@ export default function ChooseIdentity() {
       <Pushable onPress={() => actions.finishJoin({ newName: newTrim })} disabled={!newTrim || dup || state.busy} radius={14}>
         <View style={{ backgroundColor: c.good, borderWidth: 3, borderColor: c.ink, borderRadius: 14, paddingVertical: 15, alignItems: 'center' }}>
           <Text style={{ fontFamily: FONTS.display600, fontSize: 17, color: '#fff' }}>
-            {newTrim ? 'Připojit jako ' + newTrim : 'Připojit s novým jménem'}
+            {newTrim ? t('Připojit jako ') + newTrim : t('Připojit s novým jménem')}
           </Text>
         </View>
       </Pushable>
-      {dup && <Text style={{ fontFamily: FONTS.body700, fontSize: 12, color: c.bad, marginTop: 8 }}>Tohle jméno už ve skupině je – vyber ho nahoře.</Text>}
+      {dup && <Text style={{ fontFamily: FONTS.body700, fontSize: 12, color: c.bad, marginTop: 8 }}>{t('Tohle jméno už ve skupině je – vyber ho nahoře.')}</Text>}
     </ScrollView>
   );
 }

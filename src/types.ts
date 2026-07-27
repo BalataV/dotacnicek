@@ -4,6 +4,7 @@ export type CurrencyCode = 'CZK' | 'EUR' | 'USD';
 export type SplitType = 'equal' | 'ratio' | 'exact';
 export type ThemeName = 'zluta' | 'modra' | 'tmava';
 export type ContentSize = 'small' | 'medium' | 'large';
+export type Lang = 'cs' | 'en';
 export type MascotMood = 'neutral' | 'happy' | 'sad';
 
 export type ScreenName =
@@ -88,6 +89,7 @@ export interface AppState {
   myName: string;
   userTheme: ThemeName;
   contentSize: ContentSize;
+  lang: Lang;
   toggles: Toggles;
   regEmail: string;
   regPassword: string;
@@ -132,6 +134,7 @@ export interface Actions {
   pokeMascot: () => void;
   setTheme: (t: ThemeName) => void;
   setContentSize: (s: ContentSize) => void;
+  setLang: (l: Lang) => void;
   toggleSet: (k: keyof Toggles) => void;
   setPayer: (n: string) => void;
   togglePart: (n: string) => void;

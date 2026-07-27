@@ -1,0 +1,60 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@700;800;900&subset=latin-ext&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{width:1080px;height:1080px;background:#FFD60A;background-image:radial-gradient(#e8c200 3px,transparent 3px);background-size:32px 32px;font-family:Nunito,sans-serif;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.bubble{position:relative;background:#fff;color:#15233B;border:6px solid #15233B;border-radius:30px;padding:26px 40px;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:42px;line-height:1.26;box-shadow:9px 9px 0 #15233B;max-width:780px;text-align:center;margin-bottom:22px}
+.bubble .tail{position:absolute;left:50%;bottom:-30px;transform:translateX(-50%);width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-top:26px solid #15233B}
+.bubble .tail::after{content:'';position:absolute;left:-16px;top:-32px;width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:20px solid #fff}
+.mascot{width:230px;height:249px;margin-top:20px}
+.card{position:relative;background:#fff;border:5px solid #15233B;border-radius:20px;box-shadow:7px 7px 0 #15233B;width:560px;padding:20px 26px;margin-top:26px}
+.card .head{background:#15233B;color:#fff;margin:-20px -26px 14px -26px;padding:14px 26px;border-radius:14px 14px 0 0;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:22px;display:flex;align-items:center;justify-content:space-between}
+.card .stamp{border:3px solid #E23B2E;color:#E23B2E;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:15px;padding:3px 10px;border-radius:8px;transform:rotate(-8deg)}
+.row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:2px solid #F0EEE6}
+.row:last-child{border-bottom:none}
+.row .lbl{font-weight:800;color:#7a8194;font-size:15px;letter-spacing:.3px}
+.row .val{font-family:'Baloo 2',sans-serif;font-weight:800;color:#15233B;font-size:24px}
+.brandrow{display:flex;align-items:center;gap:14px;margin-top:24px}
+.brand{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:38px;color:#15233B;letter-spacing:-1px}
+.tag{font-weight:800;font-size:22px;color:#15233B;opacity:.7;margin-top:6px;text-align:center}
+.coin{position:absolute;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFE680,#E0A800);border:4px solid #B8860B;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-weight:700;color:#7a5a00}
+</style></head>
+<body>
+  <div class="coin" style="width:50px;height:50px;left:64px;top:70px;font-size:16px">Kč</div>
+  <div class="coin" style="width:38px;height:38px;right:90px;top:100px;font-size:13px">€</div>
+  <div class="coin" style="width:42px;height:42px;left:96px;bottom:80px;font-size:15px">Kč</div>
+
+  <div class="bubble">Audit NKÚ prověřil vaši dovolenou.<div class="tail"></div></div>
+  <svg class="mascot" viewBox="0 0 100 108" xmlns="http://www.w3.org/2000/svg">
+    <rect x="17" y="1" width="66" height="55" rx="28" fill="#B9B1A0"/>
+    <rect x="15" y="41" width="13" height="16" rx="8" fill="#F4C9A0" stroke="#15233B" stroke-width="3"/>
+    <rect x="72" y="41" width="13" height="16" rx="8" fill="#F4C9A0" stroke="#15233B" stroke-width="3"/>
+    <rect x="22" y="9" width="56" height="69" rx="27" fill="#F4C9A0" stroke="#15233B" stroke-width="3"/>
+    <rect x="23" y="3" width="54" height="27" rx="24" fill="#C7BFAE" stroke="#15233B" stroke-width="3"/>
+    <rect x="30" y="33" width="14" height="5" rx="2.5" fill="#8B8475"/>
+    <rect x="56" y="33" width="14" height="5" rx="2.5" fill="#8B8475"/>
+    <circle cx="37.5" cy="44.5" r="6.5" fill="#FFFFFF" stroke="#15233B" stroke-width="2"/>
+    <circle cx="38.5" cy="46" r="3" fill="#15233B"/>
+    <circle cx="62.5" cy="44.5" r="6.5" fill="#FFFFFF" stroke="#15233B" stroke-width="2"/>
+    <circle cx="63.5" cy="46" r="3" fill="#15233B"/>
+    <rect x="45" y="48" width="11" height="15" rx="5" fill="#E6B488"/>
+    <rect x="39" y="64" width="23" height="9" rx="5" fill="#8A3D2E" stroke="#15233B" stroke-width="2"/>
+    <path d="M13 103 L13 95 Q13 84 43 84 L57 84 Q87 84 87 95 L87 103 Z" fill="#15233B"/>
+    <rect x="45" y="84" width="10" height="17" rx="3" fill="#E23B2E" stroke="#15233B" stroke-width="2"/>
+  </svg>
+
+  <div class="card">
+    <div class="head"><span>Kontrolní závěr NKÚ/G1/26</span><span class="stamp">PROVĚŘENO</span></div>
+    <div class="row"><span class="lbl">CELKOVÝ OBJEM PROSTŘEDKŮ</span><span class="val">7 600 Kč</span></div>
+    <div class="row"><span class="lbl">SPONZOR VEČERA</span><span class="val">Ty 🏅</span></div>
+    <div class="row"><span class="lbl">SCHODEK K VYROVNÁNÍ</span><span class="val">1 900 Kč</span></div>
+  </div>
+
+  <div class="brandrow">
+    <div class="brand">Dotačníček</div>
+  </div>
+  <div class="tag">Kdo komu dluží? Spočítám to za vás.</div>
+</body></html>

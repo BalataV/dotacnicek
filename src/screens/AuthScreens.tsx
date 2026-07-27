@@ -4,6 +4,7 @@ import { View, Text, ScrollView, KeyboardAvoidingView, Platform, Pressable, Text
 import Svg, { Path } from 'react-native-svg';
 import * as AppleAuth from 'expo-apple-authentication';
 import { FONTS } from '../theme';
+import { t } from '../i18n';
 import { useApp, CLOUD_MODE } from '../store';
 import { useColors, Pushable, Label } from '../components/ui';
 import Mascot from '../components/Mascot';
@@ -34,15 +35,15 @@ export function Onboarding() {
       <View style={{ position: 'relative', marginBottom: 14 }}>
         <View style={{ position: 'absolute', top: 4, left: 4, right: -4, bottom: -4, backgroundColor: c.ink, borderRadius: 18 }} />
         <View style={{ backgroundColor: c.card, borderWidth: 3, borderColor: c.ink, borderRadius: 18, paddingVertical: 10, paddingHorizontal: 20 }}>
-          <Text style={{ fontFamily: FONTS.display600, fontSize: 22, color: c.ink }}>Čau lidi!</Text>
+          <Text style={{ fontFamily: FONTS.display600, fontSize: 22, color: c.ink }}>{t('Čau lidi!')}</Text>
         </View>
       </View>
-      <Pressable onPress={actions.pokeMascot} accessibilityRole="image" accessibilityLabel="Maskot Dotačníčku">
+      <Pressable onPress={actions.pokeMascot} accessibilityRole="image" accessibilityLabel={t('Maskot Dotačníčku')}>
         <Mascot size={130} float />
       </Pressable>
       <Text style={{ fontFamily: FONTS.display700, fontSize: 38, color: c.onbg, marginTop: 14, marginBottom: 6, letterSpacing: -1 }}>Dotačníček</Text>
       <Text style={{ color: c.onbg, opacity: 0.85, fontFamily: FONTS.body700, fontSize: 14, maxWidth: 240, textAlign: 'center', marginBottom: 28, lineHeight: 20 }}>
-        Kdo komu dluží? Spočítám to za vás. Sorry jako.
+        {t('Kdo komu dluží? Spočítám to za vás. Sorry jako.')}
       </Text>
 
       {/* iOS: oficiální tlačítko Applu (vlastní design Apple v recenzi neuznává) */}
@@ -63,37 +64,37 @@ export function Onboarding() {
         <Pushable onPress={actions.enterGoogle} radius={14} style={{ width: '100%', maxWidth: 280, marginBottom: 10 }}>
           <View style={{ backgroundColor: '#fff', borderWidth: 3, borderColor: c.ink, borderRadius: 14, paddingVertical: 13, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
             <GoogleIcon />
-            <Text style={{ fontFamily: FONTS.display600, fontSize: 16, color: '#15233B' }}>Pokračovat s Googlem</Text>
+            <Text style={{ fontFamily: FONTS.display600, fontSize: 16, color: '#15233B' }}>{t('Pokračovat s Googlem')}</Text>
           </View>
         </Pushable>
       )}
 
       <Pushable onPress={() => actions.navigate('register_email')} radius={14} style={{ width: '100%', maxWidth: 280, marginBottom: 20 }}>
         <View style={{ backgroundColor: c.accent, borderWidth: 3, borderColor: c.ink, borderRadius: 14, paddingVertical: 13, paddingHorizontal: 16, alignItems: 'center' }}>
-          <Text style={{ fontFamily: FONTS.display600, fontSize: 16, color: '#fff' }}>Registrovat přes e-mail</Text>
+          <Text style={{ fontFamily: FONTS.display600, fontSize: 16, color: '#fff' }}>{t('Registrovat přes e-mail')}</Text>
         </View>
       </Pushable>
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, width: '100%', maxWidth: 280, marginBottom: 18 }}>
         <View style={{ flex: 1, height: 2, backgroundColor: c.onbg, opacity: 0.15, borderRadius: 2 }} />
-        <Text style={{ fontFamily: FONTS.body800, fontSize: 12, color: c.onbg, opacity: 0.45 }}>nebo</Text>
+        <Text style={{ fontFamily: FONTS.body800, fontSize: 12, color: c.onbg, opacity: 0.45 }}>{t('nebo')}</Text>
         <View style={{ flex: 1, height: 2, backgroundColor: c.onbg, opacity: 0.15, borderRadius: 2 }} />
       </View>
 
       <Pushable onPress={() => actions.navigate('login')} offset={0} radius={14} style={{ width: '100%', maxWidth: 280 }}>
         <View style={{ borderWidth: 3, borderColor: c.ink, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}>
-          <Text style={{ fontFamily: FONTS.display600, fontSize: 16, color: c.onbg }}>Přihlásit se</Text>
+          <Text style={{ fontFamily: FONTS.display600, fontSize: 16, color: c.onbg }}>{t('Přihlásit se')}</Text>
         </View>
       </Pushable>
 
       <Text style={{ color: c.onbg, opacity: 0.5, fontFamily: FONTS.body600, marginTop: 18, maxWidth: 240, textAlign: 'center', lineHeight: 20, fontSize: 12 }}>
-        Přihlášením souhlasíte, že to stejně nikdo nečet.
+        {t('Přihlášením souhlasíte, že to stejně nikdo nečet.')}
       </Text>
     </ScrollView>
   );
 }
 
-function BackButton({ onPress, label = '‹ Zpět' }: { onPress: () => void; label?: string }) {
+function BackButton({ onPress, label = t('‹ Zpět') }: { onPress: () => void; label?: string }) {
   const c = useColors();
   return (
     <Text onPress={onPress} accessibilityRole="button" suppressHighlighting style={{ color: c.onbg, fontFamily: FONTS.body800, fontSize: 15, marginBottom: 22 }}>{label}</Text>
@@ -109,19 +110,19 @@ export function RegisterEmail() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
     <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 28 }} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
       <BackButton onPress={() => actions.navigate('onboarding')} />
-      <Text style={{ fontFamily: FONTS.display700, fontSize: 28, color: c.onbg, marginBottom: 4 }}>Vytvořit účet</Text>
-      <Text style={{ fontFamily: FONTS.body700, fontSize: 14, color: c.onbg, opacity: 0.6, marginBottom: 26 }}>Registrace je zdarma. Sorry jako.</Text>
-      <Label>E-mail</Label>
-      <Field value={state.regEmail} onChangeText={(t) => actions.patch({ regEmail: t })} placeholder="vas@email.cz" keyboardType="email-address" autoCapitalize="none" autoComplete="email" textContentType="emailAddress" maxLength={254} returnKeyType="next" submitBehavior="submit" onSubmitEditing={() => passRef.current?.focus()} style={{ marginBottom: 14 }} />
-      <Label>Heslo</Label>
-      <Field ref={passRef} value={state.regPassword} onChangeText={(t) => actions.patch({ regPassword: t })} placeholder="min. 6 znaků" secureTextEntry autoComplete="new-password" textContentType="newPassword" maxLength={72} returnKeyType="go" onSubmitEditing={actions.doRegister} style={{ marginBottom: 26 }} />
+      <Text style={{ fontFamily: FONTS.display700, fontSize: 28, color: c.onbg, marginBottom: 4 }}>{t('Vytvořit účet')}</Text>
+      <Text style={{ fontFamily: FONTS.body700, fontSize: 14, color: c.onbg, opacity: 0.6, marginBottom: 26 }}>{t('Registrace je zdarma. Sorry jako.')}</Text>
+      <Label>{t('E-mail')}</Label>
+      <Field value={state.regEmail} onChangeText={(v) => actions.patch({ regEmail: v })} placeholder={t('vas@email.cz')} keyboardType="email-address" autoCapitalize="none" autoComplete="email" textContentType="emailAddress" maxLength={254} returnKeyType="next" submitBehavior="submit" onSubmitEditing={() => passRef.current?.focus()} style={{ marginBottom: 14 }} />
+      <Label>{t('Heslo')}</Label>
+      <Field ref={passRef} value={state.regPassword} onChangeText={(v) => actions.patch({ regPassword: v })} placeholder={t('min. 6 znaků')} secureTextEntry autoComplete="new-password" textContentType="newPassword" maxLength={72} returnKeyType="go" onSubmitEditing={actions.doRegister} style={{ marginBottom: 26 }} />
       <Pushable onPress={actions.doRegister} disabled={!valid} radius={14}>
         <View style={{ backgroundColor: c.good, borderWidth: 3, borderColor: c.ink, borderRadius: 14, paddingVertical: 15, alignItems: 'center' }}>
-          <Text style={{ fontFamily: FONTS.display600, fontSize: 18, color: '#fff' }}>Zaregistrovat se</Text>
+          <Text style={{ fontFamily: FONTS.display600, fontSize: 18, color: '#fff' }}>{t('Zaregistrovat se')}</Text>
         </View>
       </Pushable>
       <Text onPress={() => actions.navigate('login')} accessibilityRole="button" suppressHighlighting style={{ textAlign: 'center', fontFamily: FONTS.body700, fontSize: 14, color: c.accent, marginTop: 20 }}>
-        Již mám účet → Přihlásit se
+        {t('Již mám účet → Přihlásit se')}
       </Text>
     </ScrollView>
     </KeyboardAvoidingView>
@@ -136,22 +137,22 @@ export function Login() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
     <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 28 }} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
       <BackButton onPress={() => actions.navigate('onboarding')} />
-      <Text style={{ fontFamily: FONTS.display700, fontSize: 28, color: c.onbg, marginBottom: 4 }}>Přihlásit se</Text>
-      <Text style={{ fontFamily: FONTS.body700, fontSize: 14, color: c.onbg, opacity: 0.6, marginBottom: 26 }}>Vítej zpátky, motýle!</Text>
-      <Label>E-mail</Label>
-      <Field value={state.loginEmail} onChangeText={(t) => actions.patch({ loginEmail: t })} placeholder="vas@email.cz" keyboardType="email-address" autoCapitalize="none" autoComplete="email" textContentType="emailAddress" maxLength={254} returnKeyType="next" submitBehavior="submit" onSubmitEditing={() => passRef.current?.focus()} style={{ marginBottom: 14 }} />
-      <Label>Heslo</Label>
-      <Field ref={passRef} value={state.loginPassword} onChangeText={(t) => actions.patch({ loginPassword: t })} placeholder="••••••••" secureTextEntry autoComplete="current-password" textContentType="password" maxLength={72} returnKeyType="go" onSubmitEditing={actions.doLogin} style={{ marginBottom: 10 }} />
+      <Text style={{ fontFamily: FONTS.display700, fontSize: 28, color: c.onbg, marginBottom: 4 }}>{t('Přihlásit se')}</Text>
+      <Text style={{ fontFamily: FONTS.body700, fontSize: 14, color: c.onbg, opacity: 0.6, marginBottom: 26 }}>{t('Vítej zpátky, motýle!')}</Text>
+      <Label>{t('E-mail')}</Label>
+      <Field value={state.loginEmail} onChangeText={(v) => actions.patch({ loginEmail: v })} placeholder={t('vas@email.cz')} keyboardType="email-address" autoCapitalize="none" autoComplete="email" textContentType="emailAddress" maxLength={254} returnKeyType="next" submitBehavior="submit" onSubmitEditing={() => passRef.current?.focus()} style={{ marginBottom: 14 }} />
+      <Label>{t('Heslo')}</Label>
+      <Field ref={passRef} value={state.loginPassword} onChangeText={(v) => actions.patch({ loginPassword: v })} placeholder="••••••••" secureTextEntry autoComplete="current-password" textContentType="password" maxLength={72} returnKeyType="go" onSubmitEditing={actions.doLogin} style={{ marginBottom: 10 }} />
       <Text onPress={actions.sendPasswordReset} accessibilityRole="button" suppressHighlighting style={{ textAlign: 'right', fontFamily: FONTS.body700, fontSize: 13, color: c.onbg, opacity: 0.65, marginBottom: 24 }}>
-        Zapomenuté heslo? Pošleme ti odkaz
+        {t('Zapomenuté heslo? Pošleme ti odkaz')}
       </Text>
       <Pushable onPress={actions.doLogin} radius={14}>
         <View style={{ backgroundColor: c.accent, borderWidth: 3, borderColor: c.ink, borderRadius: 14, paddingVertical: 15, alignItems: 'center' }}>
-          <Text style={{ fontFamily: FONTS.display600, fontSize: 18, color: '#fff' }}>Vstoupit</Text>
+          <Text style={{ fontFamily: FONTS.display600, fontSize: 18, color: '#fff' }}>{t('Vstoupit')}</Text>
         </View>
       </Pushable>
       <Text onPress={() => actions.navigate('register_email')} accessibilityRole="button" suppressHighlighting style={{ textAlign: 'center', fontFamily: FONTS.body700, fontSize: 14, color: c.accent, marginTop: 20 }}>
-        Nemám účet → Zaregistrovat se
+        {t('Nemám účet → Zaregistrovat se')}
       </Text>
     </ScrollView>
     </KeyboardAvoidingView>
@@ -167,17 +168,17 @@ export function ResetPassword() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
     <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 28 }} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
-      <Text style={{ fontFamily: FONTS.display700, fontSize: 28, color: c.onbg, marginBottom: 4 }}>Nové heslo</Text>
-      <Text style={{ fontFamily: FONTS.body700, fontSize: 14, color: c.onbg, opacity: 0.6, marginBottom: 26 }}>Zadej nové heslo ke svému účtu. To staré klidně zapomeň.</Text>
-      <Label>Nové heslo</Label>
-      <Field value={state.resetPass} onChangeText={(t) => actions.patch({ resetPass: t })} placeholder="min. 6 znaků" secureTextEntry autoComplete="new-password" textContentType="newPassword" maxLength={72} returnKeyType="done" onSubmitEditing={actions.submitNewPassword} style={{ marginBottom: 26 }} />
+      <Text style={{ fontFamily: FONTS.display700, fontSize: 28, color: c.onbg, marginBottom: 4 }}>{t('Nové heslo')}</Text>
+      <Text style={{ fontFamily: FONTS.body700, fontSize: 14, color: c.onbg, opacity: 0.6, marginBottom: 26 }}>{t('Zadej nové heslo ke svému účtu. To staré klidně zapomeň.')}</Text>
+      <Label>{t('Nové heslo')}</Label>
+      <Field value={state.resetPass} onChangeText={(v) => actions.patch({ resetPass: v })} placeholder={t('min. 6 znaků')} secureTextEntry autoComplete="new-password" textContentType="newPassword" maxLength={72} returnKeyType="done" onSubmitEditing={actions.submitNewPassword} style={{ marginBottom: 26 }} />
       <Pushable onPress={actions.submitNewPassword} disabled={!valid} radius={14}>
         <View style={{ backgroundColor: c.good, borderWidth: 3, borderColor: c.ink, borderRadius: 14, paddingVertical: 15, alignItems: 'center' }}>
-          <Text style={{ fontFamily: FONTS.display600, fontSize: 18, color: '#fff' }}>Uložit nové heslo</Text>
+          <Text style={{ fontFamily: FONTS.display600, fontSize: 18, color: '#fff' }}>{t('Uložit nové heslo')}</Text>
         </View>
       </Pushable>
       <Text onPress={() => actions.navigate('overview')} accessibilityRole="button" suppressHighlighting style={{ textAlign: 'center', fontFamily: FONTS.body700, fontSize: 14, color: c.accent, marginTop: 20 }}>
-        Teď ne → Přejít do appky
+        {t('Teď ne → Přejít do appky')}
       </Text>
     </ScrollView>
     </KeyboardAvoidingView>
@@ -195,13 +196,13 @@ export function EmailConfirmed() {
       <View style={{ width: 84, height: 84, borderRadius: 42, backgroundColor: c.good, borderWidth: 3, borderColor: c.ink, alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
         <Text style={{ color: '#fff', fontFamily: FONTS.body900, fontSize: 36 }}>✓</Text>
       </View>
-      <Text style={{ fontFamily: FONTS.display700, fontSize: 26, color: c.onbg, marginBottom: 8, textAlign: 'center' }}>E-mail potvrzen!</Text>
+      <Text style={{ fontFamily: FONTS.display700, fontSize: 26, color: c.onbg, marginBottom: 8, textAlign: 'center' }}>{t('E-mail potvrzen!')}</Text>
       <Text style={{ fontFamily: FONTS.body700, fontSize: 14, color: c.onbg, opacity: 0.7, maxWidth: 260, textAlign: 'center', lineHeight: 20, marginBottom: 28 }}>
-        Tvůj účet je hotový. Teď se stačí přihlásit e-mailem a heslem, které jsi zadal(a) při registraci.
+        {t('Tvůj účet je hotový. Teď se stačí přihlásit e-mailem a heslem, které jsi zadal(a) při registraci.')}
       </Text>
       <Pushable onPress={() => actions.navigate('login')} radius={14} style={{ width: '100%', maxWidth: 280 }}>
         <View style={{ backgroundColor: c.accent, borderWidth: 3, borderColor: c.ink, borderRadius: 14, paddingVertical: 14, alignItems: 'center' }}>
-          <Text style={{ fontFamily: FONTS.display600, fontSize: 17, color: '#fff' }}>Přihlásit se</Text>
+          <Text style={{ fontFamily: FONTS.display600, fontSize: 17, color: '#fff' }}>{t('Přihlásit se')}</Text>
         </View>
       </Pushable>
     </ScrollView>

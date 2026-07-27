@@ -4,6 +4,7 @@
 import React, { Component, ReactNode } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import Mascot from './Mascot';
+import { t } from '../i18n';
 
 interface Props { children: ReactNode; }
 interface State { error: Error | null; }
@@ -26,10 +27,10 @@ export default class ErrorBoundary extends Component<Props, State> {
       <ScrollView style={{ flex: 1, backgroundColor: '#FFD60A' }} contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: 28 }}>
         <Mascot size={110} mood="sad" />
         <Text style={{ fontSize: 26, fontWeight: '800', color: '#15233B', marginTop: 16, textAlign: 'center' }}>
-          Sorry jako, něco se pokazilo.
+          {t('Sorry jako, něco se pokazilo.')}
         </Text>
         <Text style={{ fontSize: 15, color: '#15233B', opacity: 0.75, marginTop: 8, marginBottom: 24, textAlign: 'center', maxWidth: 280, lineHeight: 21 }}>
-          Appka narazila na neočekávanou chybu. Zkus to znovu – data jsou v bezpečí v cloudu.
+          {t('Appka narazila na neočekávanou chybu. Zkus to znovu – data jsou v bezpečí v cloudu.')}
         </Text>
         <Pressable
           onPress={() => this.setState({ error: null })}

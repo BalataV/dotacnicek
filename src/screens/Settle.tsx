@@ -2,6 +2,7 @@
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { FONTS } from '../theme';
+import { t } from '../i18n';
 import { useApp } from '../store';
 import { useColors, Pushable, Avatar } from '../components/ui';
 import { myAllTransfers, totalOwe, initial, hasAny } from '../logic';
@@ -18,31 +19,31 @@ export default function Settle() {
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
       {/* Od odebrání záložky ze spodní lišty se sem chodí z detailu skupiny,
           takže „zpět" vrací tam. Bez vybrané skupiny padáme na Přehled. */}
-      <Text onPress={() => actions.navigate(state.selectedGroup ? 'group' : 'overview')} accessibilityRole="button" suppressHighlighting style={{ color: c.onbg, fontFamily: FONTS.body800, fontSize: 15, marginBottom: 10 }}>‹ Zpět</Text>
-      <Text style={{ fontFamily: FONTS.display700, fontSize: 26, color: c.onbg, letterSpacing: -0.5 }}>Rozpočet</Text>
+      <Text onPress={() => actions.navigate(state.selectedGroup ? 'group' : 'overview')} accessibilityRole="button" suppressHighlighting style={{ color: c.onbg, fontFamily: FONTS.body800, fontSize: 15, marginBottom: 10 }}>{t('‹ Zpět')}</Text>
+      <Text style={{ fontFamily: FONTS.display700, fontSize: 26, color: c.onbg, letterSpacing: -0.5 }}>{t('Rozpočet')}</Text>
       <Text style={{ fontFamily: FONTS.body800, fontSize: 14, color: c.onbg, opacity: 0.8, marginBottom: 18 }}>
-        {hasAny(owe) ? 'Dlužíš celkem ' + fmtMoneyMap(owe) : 'Hotovo! Jsi vyrovnaný.'}
+        {hasAny(owe) ? t('Dlužíš celkem ') + fmtMoneyMap(owe) : t('Hotovo! Jsi vyrovnaný.')}
       </Text>
 
       {list.length === 0 ? (
         <Pushable radius={18}>
           <View style={{ backgroundColor: c.card, borderWidth: 3, borderColor: c.ink, borderRadius: 18, paddingVertical: 28, paddingHorizontal: 20, alignItems: 'center' }}>
-            <Text style={{ fontFamily: FONTS.display700, fontSize: 18, color: c.ink, textAlign: 'center', lineHeight: 24 }}>Rozpočet je skvělý, my tam ty peníze máme.</Text>
+            <Text style={{ fontFamily: FONTS.display700, fontSize: 18, color: c.ink, textAlign: 'center', lineHeight: 24 }}>{t('Rozpočet je skvělý, my tam ty peníze máme.')}</Text>
           </View>
         </Pushable>
       ) : list.map((d) => (
         <View key={d.id} style={{ position: 'relative', marginBottom: 12 }}>
           <View style={{ position: 'absolute', top: 4, left: 4, right: -4, bottom: -4, backgroundColor: c.ink, borderRadius: 16 }} />
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: c.card, borderWidth: 3, borderColor: c.ink, borderRadius: 16, padding: 13 }}>
-            <Avatar name={d.to} initial={initial(d.to)} color={colorForMember(d.to)} size={40} fontSize={14} />
+            <Avatar name={t(d.to)} initial={initial(d.to)} color={colorForMember(d.to)} size={40} fontSize={14} />
             <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={{ fontFamily: FONTS.body800, fontSize: 15, color: c.ink }}>Zaplatit {d.to}</Text>
+              <Text style={{ fontFamily: FONTS.body800, fontSize: 15, color: c.ink }}>{t('Zaplatit ') + t(d.to)}</Text>
               <Text style={{ fontFamily: FONTS.display700, fontSize: 20, color: c.bad }}>{fmtMoney(d.amt, d.currency)}</Text>
-              <Text onPress={() => actions.openContract(d)} accessibilityRole="button" suppressHighlighting style={{ fontFamily: FONTS.body800, fontSize: 12, color: c.accent, marginTop: 2 }}>📜 Vystavit smlouvu</Text>
+              <Text onPress={() => actions.openContract(d)} accessibilityRole="button" suppressHighlighting style={{ fontFamily: FONTS.body800, fontSize: 12, color: c.accent, marginTop: 2 }}>{t('📜 Vystavit smlouvu')}</Text>
             </View>
             <Pushable onPress={() => actions.payDebt(d)} offset={3} radius={12}>
               <View style={{ backgroundColor: c.accent, borderWidth: 3, borderColor: c.ink, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 16 }}>
-                <Text style={{ fontFamily: FONTS.display600, fontSize: 14, color: '#fff' }}>Zacvakat</Text>
+                <Text style={{ fontFamily: FONTS.display600, fontSize: 14, color: '#fff' }}>{t('Zacvakat')}</Text>
               </View>
             </Pushable>
           </View>

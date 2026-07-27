@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { FONTS } from '../theme';
+import { t } from '../i18n';
 import { useApp } from '../store';
 import { useColors, Pushable, Avatar } from '../components/ui';
 import { myNet, initial, totalOwe, totalOwed } from '../logic';
@@ -44,21 +45,21 @@ export default function Overview() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={c.ink} colors={[c.accent]} />}
     >
       <View style={{ flexDirection: 'row', gap: 10, marginBottom: 18 }}>
-        <StatCard label="Dlužíš" value={fmtMoneyMap(owe)} color={c.bad} sub={oweApprox != null ? '≈ ' + fmtMoney(oweApprox, 'CZK') : undefined} />
-        <StatCard label="Dostaneš" value={fmtMoneyMap(owed)} color={c.good} sub={owedApprox != null ? '≈ ' + fmtMoney(owedApprox, 'CZK') : undefined} />
+        <StatCard label={t('Dlužíš')} value={fmtMoneyMap(owe)} color={c.bad} sub={oweApprox != null ? '≈ ' + fmtMoney(oweApprox, 'CZK') : undefined} />
+        <StatCard label={t('Dostaneš')} value={fmtMoneyMap(owed)} color={c.good} sub={owedApprox != null ? '≈ ' + fmtMoney(owedApprox, 'CZK') : undefined} />
       </View>
 
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <Text style={{ fontFamily: FONTS.display600, fontSize: 21, color: c.onbg }}>Tvoje skupiny</Text>
+        <Text style={{ fontFamily: FONTS.display600, fontSize: 21, color: c.onbg }}>{t('Tvoje skupiny')}</Text>
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <Pushable onPress={actions.startJoin} offset={2} radius={10}>
             <View style={{ backgroundColor: c.card, borderWidth: 3, borderColor: c.ink, borderRadius: 10, paddingVertical: 6, paddingHorizontal: 12 }}>
-              <Text style={{ fontFamily: FONTS.display600, fontSize: 14, color: c.ink }}>Připojit</Text>
+              <Text style={{ fontFamily: FONTS.display600, fontSize: 14, color: c.ink }}>{t('Připojit')}</Text>
             </View>
           </Pushable>
           <Pushable onPress={actions.startCreateGroup} offset={2} radius={10}>
             <View style={{ backgroundColor: c.accent2, borderWidth: 3, borderColor: c.ink, borderRadius: 10, paddingVertical: 6, paddingHorizontal: 13 }}>
-              <Text style={{ fontFamily: FONTS.display600, fontSize: 14, color: '#fff' }}>+ Nová</Text>
+              <Text style={{ fontFamily: FONTS.display600, fontSize: 14, color: '#fff' }}>{t('+ Nová')}</Text>
             </View>
           </Pushable>
         </View>
@@ -67,7 +68,7 @@ export default function Overview() {
       {state.groups.length === 0 && (
         <Pushable radius={18}>
           <View style={{ backgroundColor: c.card, borderWidth: 3, borderColor: c.ink, borderRadius: 18, paddingVertical: 30, paddingHorizontal: 20, alignItems: 'center' }}>
-            <Text style={{ fontFamily: FONTS.display700, fontSize: 19, color: c.ink, textAlign: 'center' }}>Zatím nejsi součástí koncernu</Text>
+            <Text style={{ fontFamily: FONTS.display700, fontSize: 19, color: c.ink, textAlign: 'center' }}>{t('Zatím nejsi součástí koncernu')}</Text>
           </View>
         </Pushable>
       )}
@@ -76,10 +77,10 @@ export default function Overview() {
         const nm = myNet(g, state.expenses[g.id], state.payments[g.id]);
         const keys = Object.keys(nm);
         let netText, netColor;
-        if (!keys.length) { netText = 'Vyrovnáno'; netColor = c.muted; }
+        if (!keys.length) { netText = t('Vyrovnáno'); netColor = c.muted; }
         else if (keys.length === 1) {
           const k = keys[0]; const n = nm[k];
-          netText = (n < 0 ? 'Dlužíš ' : 'Dostaneš ') + fmtMoney(Math.abs(n), k);
+          netText = (n < 0 ? t('Dlužíš ') : t('Dostaneš ')) + fmtMoney(Math.abs(n), k);
           netColor = n < 0 ? c.bad : c.good;
         } else {
           netText = keys.map((k) => (nm[k] < 0 ? '−' : '+') + fmtMoney(Math.abs(nm[k]), k)).join('  ');
@@ -93,7 +94,7 @@ export default function Overview() {
                 <View style={{ flexDirection: 'row' }}>
                   {g.members.map((m, i) => (
                     <View key={m} style={{ marginRight: -7 }}>
-                      <Avatar name={m} initial={initial(m)} color={colorForMember(m, i)} size={28} />
+                      <Avatar name={t(m)} initial={initial(m)} color={colorForMember(m, i)} size={28} />
                     </View>
                   ))}
                 </View>

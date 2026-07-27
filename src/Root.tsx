@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { View, Text, Pressable, StatusBar, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FONTS } from './theme';
+import { t } from './i18n';
 import { useApp } from './store';
 import { useColors } from './components/ui';
 import Mascot from './components/Mascot';
@@ -138,7 +139,7 @@ export default function Root() {
             <View style={{ width: '100%', maxWidth: MAX_W, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 13, paddingBottom: 14 }}>
               <Text style={{ fontFamily: FONTS.display700, fontSize: 23, color: c.ink, letterSpacing: -0.6 }}>Dotačníček</Text>
               <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 10, marginTop: 11 }}>
-                <Pressable onPress={actions.pokeMascot} accessibilityRole="image" accessibilityLabel="Maskot Dotačníčku">
+                <Pressable onPress={actions.pokeMascot} accessibilityRole="image" accessibilityLabel={t('Maskot Dotačníčku')}>
                   <Mascot size={56} alt={isAltQuip(state.bubble)} mood={state.mascotMood} />
                 </Pressable>
                 <SpeechBubble key={state.bubbleKey} text={state.bubble} />
@@ -154,8 +155,8 @@ export default function Root() {
             <View style={{ width: '100%', maxWidth: MAX_W, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingHorizontal: 6 }}>
               {/* Rozpočet ze spodní lišty odebrán (2026-07-26) – obrazovka zůstává,
                   vede na ni tlačítko „Rozpočet" v detailu skupiny. */}
-              <NavItem label="Přehled" active={sc === 'overview'} color={sc === 'overview' ? c.accent : c.muted} icon={GridIcon} onPress={() => actions.navigate('overview')} />
-              <NavItem label="Profil" active={sc === 'profile'} color={sc === 'profile' ? c.accent : c.muted} icon={PersonIcon} onPress={() => actions.navigate('profile')} />
+              <NavItem label={t('Přehled')} active={sc === 'overview'} color={sc === 'overview' ? c.accent : c.muted} icon={GridIcon} onPress={() => actions.navigate('overview')} />
+              <NavItem label={t('Profil')} active={sc === 'profile'} color={sc === 'profile' ? c.accent : c.muted} icon={PersonIcon} onPress={() => actions.navigate('profile')} />
             </View>
           </View>
         )}

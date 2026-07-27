@@ -102,6 +102,50 @@ export const QUIPS: Quip[] = [
   { text: 'Já to absolutně odmítám, je to vytržené z kontextu.', alt: true },
 ];
 
+// Anglická sada. Česká politická satira v překladu nefunguje (odkazy na kauzy
+// a jména cizinci neznají), takže EN má vlastní vtipy ve stejném tónu:
+// samolibý politik-podnikatel, který mluví o penězích a nic nečet.
+export const QUIPS_EN: Quip[] = [
+  { text: 'Sorry not sorry.' },
+  { text: 'I didn\'t read it. I signed it though.' },
+  { text: 'Trust me, the money is right there.' },
+  { text: 'I run this like a business.' },
+  { text: 'It\'s all a smear campaign!' },
+  { text: 'We are the best in class!' },
+  { text: 'Things will get better. Probably.' },
+  { text: 'I\'m not a bookkeeper, I\'m a visionary.' },
+  { text: 'Write it down, then we\'ll see.' },
+  { text: 'Where did all the money go? Asking for a friend.' },
+  { text: 'I have never lied. Never!' },
+  { text: 'That receipt is fake news.' },
+  { text: 'I could be on a yacht right now.' },
+  { text: 'Somebody has to pay. Preferably not me.' },
+  { text: 'This is a rounding error, nothing more.' },
+  { text: 'I sacrificed everything for this group.' },
+  { text: 'Pay up and let\'s never speak of it again.' },
+  { text: 'Who told you that? Name!' },
+  { text: 'The numbers are excellent. Don\'t check them.' },
+  { text: 'I don\'t have a conflict of interest. I have interests.' },
+  { text: 'Let\'s call it an investment, not a debt.' },
+  { text: 'We\'ll audit that later. Much later.' },
+  { text: 'Splitting bills is basically economics.' },
+  { text: 'I paid last time. Allegedly.' },
+  { text: 'Everyone was stealing. I was just organized.' },
+  { text: 'Don\'t be shy, name the freeloader.' },
+  { text: 'The budget is fine. Stop asking.' },
+  { text: 'We will see. That\'s my final answer.' },
+  { text: 'I\'m a micromanager, I have to check every beer.' },
+  { text: 'Add it up, it\'s not my problem anymore.' },
+  { text: 'Is this a subsidy or a loan? Yes.', alt: true },
+  { text: 'Where on earth will you get the money?', alt: true },
+  { text: 'This is fiscal suicide, my friend.', alt: true },
+  { text: 'You have no plan, you just spend.', alt: true },
+  { text: 'We calculated it to the last penny.', alt: true },
+  { text: 'People must be helped. Immediately.', alt: true },
+  { text: 'I absolutely reject that. Out of context!', alt: true },
+  { text: 'You\'ll bankrupt our children and grandchildren!', alt: true },
+];
+
 // Easter egg – hlášky po pěti rychlých šťouchnutích do maskota.
 export const QUIPS_EGG: string[] = [
   'Přestaň do mě šťouchat, já makám!',
@@ -111,8 +155,16 @@ export const QUIPS_EGG: string[] = [
   'Hele, já jsem jen obyčejnej maskot.',
 ];
 
+export const QUIPS_EGG_EN: string[] = [
+  'Stop poking me, I\'m working!',
+  'That tickles. Sorry not sorry.',
+  'Audit? What audit? I know nothing.',
+  'Go poke the opposition instead!',
+  'Look, I\'m just a mascot here.',
+];
+
 // Texty, u kterých se má ukázat druhá karikatura (ministryně financí).
-const ALT_TEXTS = new Set<string>(QUIPS.filter((q) => q.alt).map((q) => q.text));
+const ALT_TEXTS = new Set<string>([...QUIPS, ...QUIPS_EN].filter((q) => q.alt).map((q) => q.text));
 
 export function isAltQuip(text: string): boolean {
   return ALT_TEXTS.has(text);

@@ -1,5 +1,6 @@
 // Historie aktivit – sloučí výdaje a platby do jedné časové osy.
 // Odvozeno z dat (created_at), bez samostatné DB tabulky.
+import { t } from './i18n';
 import type { Expense, Payment } from './types';
 
 export interface FeedItem {
@@ -43,12 +44,12 @@ export function whenLabel(when: number): string {
   if (!when) return '';
   const diff = Date.now() - when;
   const min = Math.floor(diff / 60000);
-  if (min < 1) return 'právě teď';
-  if (min < 60) return 'před ' + min + ' min';
+  if (min < 1) return t('právě teď');
+  if (min < 60) return t('před ') + min + t(' min');
   const h = Math.floor(min / 60);
-  if (h < 24) return 'před ' + h + ' h';
+  if (h < 24) return t('před ') + h + t(' h');
   const d = Math.floor(h / 24);
-  if (d < 7) return 'před ' + d + ' dny';
+  if (d < 7) return t('před ') + d + t(' d');
   const date = new Date(when);
   return date.getDate() + '. ' + (date.getMonth() + 1) + '.';
 }

@@ -7,16 +7,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Linking from 'expo-linking';
 import { INITIAL_GROUPS, INITIAL_EXPENSES } from './data';
 import { bubbleFor, pick } from './logic';
-import { QUIPS_EGG } from './quips';
+import { QUIPS_EGG, QUIPS_EGG_EN } from './quips';
 import { isSupabaseConfigured, supabase, initialAuthType, initialAuthError, initialAuthTokenHash } from './supabase';
 import { tapSuccess } from './haptics';
 import { dispMember, idForMember } from './members';
 import { setGlobalFontScale, CONTENT_SCALE } from './textScale';
+import { t, getLang, setLangGlobal } from './i18n';
 import { loadRates } from './fx';
 import { registerForPush, sendPush } from './notifications';
 import { fmtMoney } from './money';
 import * as api from './api';
-import type { AppState, Actions, AppContextValue, ScreenName, Transfer, GroupMember } from './types';
+import type { AppState, Actions, AppContextValue, ScreenName, Transfer, GroupMember, Lang } from './types';
 
 export const CLOUD_MODE = isSupabaseConfigured;
 export { api };
@@ -51,6 +52,7 @@ function makeInitialState(): AppState {
     myName: 'Já',
     userTheme: 'zluta',
     contentSize: 'medium',
+    lang: getLang(),
     toggles: { notif: true, sound: false },
     regEmail: '', regPassword: '',
     loginEmail: '', loginPassword: '',
@@ -101,10 +103,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (raw) {
           const saved = JSON.parse(raw);
           if (saved.contentSize) setGlobalFontScale(CONTENT_SCALE[saved.contentSize as keyof typeof CONTENT_SCALE] || 1);
+          if (saved.lang === 'cs' || saved.lang === 'en') setLangGlobal(saved.lang);
           setState((s) => ({
             ...s,
             userTheme: saved.userTheme || s.userTheme,
             contentSize: saved.contentSize || s.contentSize,
+            lang: (saved.lang === 'cs' || saved.lang === 'en') ? saved.lang : s.lang,
             toggles: saved.toggles || s.toggles,
             // lokální data se obnoví jen v lokálním režimu
             groups: CLOUD_MODE ? s.groups : (saved.groups || s.groups),
@@ -129,7 +133,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         // Odkaz z e-mailu byl neplatný nebo vypršel (Supabase to vrací v hashi)
         if (initialAuthError) {
           clearResetParam();
-          showToast('Odkaz z e-mailu už neplatí – požádej o nový');
+          showToast(t('Odkaz z e-mailu už neplatí – požádej o nový'));
         }
         // Odkaz „potvrzení registrace" z e-mailu: ověříme token, ale hned se
         // odhlásíme – uživatel má vidět jasnou zprávu „e-mail potvrzen", ne
@@ -138,7 +142,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           try {
             await api.authApi.verifyEmailConfirmation(initialAuthTokenHash);
           } catch (e) {
-            showToast('Odkaz na potvrzení e-mailu už neplatí');
+            showToast(t('Odkaz na potvrzení e-mailu už neplatí'));
           }
           try { await api.authApi.signOut(); } catch (e) {}
           clearResetParam();
@@ -150,7 +154,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           try {
             await api.authApi.verifyRecoveryToken(initialAuthTokenHash);
           } catch (e) {
-            showToast('Odkaz na obnovu hesla už neplatí – požádej o nový');
+            showToast(t('Odkaz na obnovu hesla už neplatí – požádej o nový'));
           }
           clearResetParam();
         }
@@ -187,7 +191,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           } else if (wantsPasswordReset()) {
             // odkaz vypršel / už byl použitý – session z něj nevznikla
             clearResetParam();
-            showToast('Odkaz na obnovu hesla vypršel – požádej o nový');
+            showToast(t('Odkaz na obnovu hesla vypršel – požádej o nový'));
           }
         } catch (e) {
         } finally {
@@ -292,10 +296,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!loaded.current) return;
     const slice = CLOUD_MODE
-      ? { userTheme: state.userTheme, contentSize: state.contentSize, toggles: state.toggles }
-      : { userTheme: state.userTheme, contentSize: state.contentSize, toggles: state.toggles, groups: state.groups, expenses: state.expenses, payments: state.payments };
+      ? { userTheme: state.userTheme, contentSize: state.contentSize, lang: state.lang, toggles: state.toggles }
+      : { userTheme: state.userTheme, contentSize: state.contentSize, lang: state.lang, toggles: state.toggles, groups: state.groups, expenses: state.expenses, payments: state.payments };
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(slice)).catch(() => {});
-  }, [state.groups, state.expenses, state.payments, state.userTheme, state.contentSize, state.toggles]);
+  }, [state.groups, state.expenses, state.payments, state.userTheme, state.contentSize, state.lang, state.toggles]);
 
   // ---------- pomocné ----------
   function patch(p: Partial<AppState> | ((s: AppState) => Partial<AppState>)) { setState((s) => ({ ...s, ...(typeof p === 'function' ? p(s) : p) })); }
@@ -383,7 +387,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       pendingJoin.current = null;
       joinByCode(code);
     } else {
-      showToast('Vítej, motýle!');
+      showToast(t('Vítej, motýle!'));
     }
   }
 
@@ -533,12 +537,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
           const actor = s.addPayer === 'Já' ? s.myName : s.addPayer;
           const gname = s.groups.find((g) => g.id === s.selectedGroup)?.name || 'skupině';
           api.pushApi.groupPushTokens(s.selectedGroup!)
-            .then((toks) => sendPush(toks, 'Nový výdaj v ' + gname, actor + ' přidal „' + s.addDesc + '" · ' + fmtMoney(amt, s.addCurrency)))
+            .then((toks) => sendPush(toks, t('Nový výdaj v ') + gname, actor + t(' přidal „') + s.addDesc + '" · ' + fmtMoney(amt, s.addCurrency)))
             .catch(() => {});
         }
       } catch (e) {
         setState((x) => ({ ...x, busy: false }));
-        showToast('Výdaj se nepodařilo uložit');
+        showToast(t('Výdaj se nepodařilo uložit'));
       }
       return;
     }
@@ -571,8 +575,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await api.expensesApi.deleteExpense(id);
         await reloadGroup(s.selectedGroup!);
         setState((x) => ({ ...x, screen: 'group' }));
-        showToast('Výdaj smazán');
-      } catch (e) { showToast('Smazání selhalo'); }
+        showToast(t('Výdaj smazán'));
+      } catch (e) { showToast(t('Smazání selhalo')); }
       return;
     }
     setState((x) => {
@@ -581,7 +585,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       expenses[gid] = (expenses[gid] || []).filter((e) => e.id !== id);
       return { ...x, expenses, screen: 'group' };
     });
-    showToast('Výdaj smazán');
+    showToast(t('Výdaj smazán'));
   }
 
   // Smazání skupiny – v cloudu řešeno archivací (zmizí všem členům i z přehledu)
@@ -593,7 +597,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await api.groupsApi.archiveGroup(id);
       } catch (e) {
         setState((x) => ({ ...x, busy: false }));
-        showToast('Smazání skupiny selhalo');
+        showToast(t('Smazání skupiny selhalo'));
         return;
       }
       try {
@@ -602,7 +606,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } catch (e) {
         setState((x) => ({ ...x, busy: false, selectedGroup: null, screen: 'overview' }));
       }
-      showToast('Skupina smazána');
+      showToast(t('Skupina smazána'));
       return;
     }
     setState((x) => {
@@ -611,7 +615,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const payments = { ...x.payments }; delete payments[id];
       return { ...x, groups, expenses, payments, selectedGroup: null, screen: 'overview', bubble: bubbleFor(x, 'overview'), bubbleKey: x.bubbleKey + 1 };
     });
-    showToast('Skupina smazána');
+    showToast(t('Skupina smazána'));
   }
 
   // Změna mého zobrazovaného jména (i v historických výdajích – řeší serverová funkce)
@@ -619,14 +623,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const name = (rawName || '').trim();
     const s = stateRef.current;
     if (!name || name === s.myName) return;
-    if (!CLOUD_MODE) { showToast('Jméno se nastaví až po přihlášení'); return; }
+    if (!CLOUD_MODE) { showToast(t('Jméno se nastaví až po přihlášení')); return; }
     setState((x) => ({ ...x, busy: true }));
     try {
       await api.authApi.setMyName(name);
       if (meRef.current) meRef.current = { ...meRef.current, myName: name };
       const data = await fetchEverything(s.meUid!, name);
       setState((x) => ({ ...x, ...data, myName: name, busy: false, bubble: bubbleFor(x, 'profile'), bubbleKey: x.bubbleKey + 1 }));
-      showToast('Jméno změněno na ' + name);
+      showToast(t('Jméno změněno na ') + name);
     } catch (e: any) {
       setState((x) => ({ ...x, busy: false }));
       showToast(/unique|duplicate/i.test(e.message || '') ? 'To jméno už ve skupině někdo má' : 'Změna jména selhala');
@@ -650,7 +654,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         // Notifikace ostatním členům o vyrovnání
         const actor = d.from === 'Já' ? s.myName : d.from;
         api.pushApi.groupPushTokens(d.groupId)
-          .then((toks) => sendPush(toks, 'Vyrovnání dluhu', actor + ' → ' + d.to + ': ' + fmtMoney(d.amt, d.currency || 'CZK')))
+          .then((toks) => sendPush(toks, t('Vyrovnání dluhu'), actor + ' → ' + d.to + ': ' + fmtMoney(d.amt, d.currency || 'CZK')))
           .catch(() => {});
       } catch (e) { showToast('Platba selhala'); return; }
     } else {
@@ -673,7 +677,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     pokeTimer.current = setTimeout(() => { pokeCount.current = 0; }, 2500);
     if (pokeCount.current < 5) return;
     pokeCount.current = 0;
-    const line = pick(QUIPS_EGG);
+    const line = pick(getLang() === 'en' ? QUIPS_EGG_EN : QUIPS_EGG);
     setState((s) => ({ ...s, coins: true, bubble: line, bubbleKey: s.bubbleKey + 1 }));
     flashMood('happy');
     clearTimeout(coinsTimer.current);
@@ -691,6 +695,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   function setContentSize(cs: AppState['contentSize']) {
     setGlobalFontScale(CONTENT_SCALE[cs] || 1);
     setState((s) => ({ ...s, contentSize: cs, bubbleKey: s.bubbleKey + 1 }));
+  }
+
+  // Přepnutí jazyka: modulová proměnná (kvůli t() mimo React) + stav (kvůli překreslení)
+  function setLang(l: Lang) {
+    setLangGlobal(l);
+    // hláška v bublině je uložená ve stavu – po přepnutí ji přegenerujeme,
+    // jinak by u české appky zůstala viset anglická věta (a naopak)
+    setState((s) => ({ ...s, lang: l, bubble: bubbleFor(s, s.screen), bubbleKey: s.bubbleKey + 1 }));
   }
 
   function toggleSet(k: keyof AppState['toggles']) { setState((s) => ({ ...s, toggles: { ...s.toggles, [k]: !s.toggles[k] } })); }
@@ -720,7 +732,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const session = await api.authApi.getSession();
         setState((x) => ({ ...x, busy: false }));
         if (session) await finishLogin();
-        else showToast('Zkontroluj e-mail pro potvrzení');
+        else showToast(t('Zkontroluj e-mail pro potvrzení'));
       } catch (e: any) {
         setState((x) => ({ ...x, busy: false }));
         showToast(e.message?.includes('registered') ? 'Účet už existuje' : 'Registrace selhala');
@@ -728,7 +740,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return;
     }
     setState((x) => ({ ...x, screen: 'overview', bubble: bubbleFor(x, 'overview'), bubbleKey: x.bubbleKey + 1 }));
-    showToast('Vítej, motýle!');
+    showToast(t('Vítej, motýle!'));
   }
 
   async function doLogin() {
@@ -750,34 +762,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return;
     }
     setState((x) => ({ ...x, screen: 'overview', bubble: bubbleFor(x, 'overview'), bubbleKey: x.bubbleKey + 1 }));
-    showToast('Přihlášení úspěšné');
+    showToast(t('Přihlášení úspěšné'));
   }
 
   // Zapomenuté heslo: pošle e-mail s odkazem (použije e-mail z přihlašovacího pole)
   async function sendPasswordReset() {
     const email = stateRef.current.loginEmail.trim();
-    if (!email.includes('@')) { showToast('Nejdřív nahoře vyplň svůj e-mail'); return; }
-    if (!CLOUD_MODE) { showToast('V lokálním režimu se heslo nepoužívá'); return; }
+    if (!email.includes('@')) { showToast(t('Nejdřív nahoře vyplň svůj e-mail')); return; }
+    if (!CLOUD_MODE) { showToast(t('V lokálním režimu se heslo nepoužívá')); return; }
     setState((x) => ({ ...x, busy: true }));
     try {
       await api.authApi.resetPassword(email);
       setState((x) => ({ ...x, busy: false }));
-      showToast('Odkaz na obnovu hesla je na cestě 📨');
+      showToast(t('Odkaz na obnovu hesla je na cestě 📨'));
     } catch (e) {
       setState((x) => ({ ...x, busy: false }));
-      showToast('E-mail se nepodařilo odeslat, zkus to za chvíli');
+      showToast(t('E-mail se nepodařilo odeslat, zkus to za chvíli'));
     }
   }
 
   // Nastavení nového hesla (obrazovka reset_password po příchodu z odkazu)
   async function submitNewPassword() {
     const pw = stateRef.current.resetPass;
-    if (pw.length < 6) { showToast('Heslo musí mít aspoň 6 znaků'); return; }
+    if (pw.length < 6) { showToast(t('Heslo musí mít aspoň 6 znaků')); return; }
     setState((x) => ({ ...x, busy: true }));
     try {
       await api.authApi.updatePassword(pw);
       setState((x) => ({ ...x, busy: false, resetPass: '' }));
-      showToast('Nové heslo nastaveno ✅');
+      showToast(t('Nové heslo nastaveno ✅'));
       navigate('overview');
     } catch (e: any) {
       setState((x) => ({ ...x, busy: false }));
@@ -793,7 +805,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         const session = await api.authApi.signInWithGoogle();
         if (session) await finishLogin();
-      } catch (e) { showToast('Přihlášení Googlem selhalo'); }
+      } catch (e) { showToast(t('Přihlášení Googlem selhalo')); }
       return;
     }
     navigate('overview');
@@ -807,7 +819,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (session) await finishLogin();
     } catch (e: any) {
       if (e?.code === 'ERR_REQUEST_CANCELED') return; // uživatel dialog zavřel
-      showToast('Přihlášení přes Apple selhalo');
+      showToast(t('Přihlášení přes Apple selhalo'));
     }
   }
 
@@ -823,12 +835,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const uid = stateRef.current.meUid;
     if (CLOUD_MODE) {
       try { await api.authApi.deleteAccount(); }
-      catch (e) { showToast('Smazání účtu selhalo'); return; }
+      catch (e) { showToast(t('Smazání účtu selhalo')); return; }
     }
     if (uid) AsyncStorage.removeItem(cacheKey(uid)).catch(() => {});
     meRef.current = null;
     setState((s) => ({ ...makeInitialState(), userTheme: s.userTheme, contentSize: s.contentSize, toggles: s.toggles, googleEnabled: s.googleEnabled, appleAvailable: s.appleAvailable }));
-    showToast('Účet smazán');
+    showToast(t('Účet smazán'));
   }
 
   // ---------- připojení do skupiny přes kód / odkaz ----------
@@ -847,9 +859,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   async function joinByCode(rawCode: string) {
     const code = (rawCode || '').trim().toUpperCase();
     if (!code) return;
-    if (!CLOUD_MODE) { showToast('Sdílení funguje jen s přihlášením'); return; }
+    if (!CLOUD_MODE) { showToast(t('Sdílení funguje jen s přihlášením')); return; }
     const me = meRef.current || (stateRef.current.meUid ? { uid: stateRef.current.meUid, myName: stateRef.current.myName } : null);
-    if (!me) { pendingJoin.current = code; navigate('onboarding'); showToast('Přihlas se a hned tě připojím'); return; }
+    if (!me) { pendingJoin.current = code; navigate('onboarding'); showToast(t('Přihlas se a hned tě připojím')); return; }
     setState((x) => ({ ...x, busy: true }));
     try {
       const preview = await api.groupsApi.groupPreview(code);
@@ -858,7 +870,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (preview.members.some((m: any) => m.isMe)) {
         const data = await fetchEverything(me.uid, me.myName);
         setState((x) => ({ ...x, ...data, busy: false, joinCodeInput: '', screen: 'group', selectedGroup: preview.groupId, bubble: bubbleFor({ ...x, ...data }, 'group'), bubbleKey: x.bubbleKey + 1 }));
-        showToast('Vítej zpátky!');
+        showToast(t('Vítej zpátky!'));
         return;
       }
       setState((x) => ({
@@ -868,7 +880,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }));
     } catch (e) {
       setState((x) => ({ ...x, busy: false }));
-      showToast('Skupina s tímto kódem nenalezena');
+      showToast(t('Skupina s tímto kódem nenalezena'));
     }
   }
 
@@ -883,7 +895,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const gid = await api.groupsApi.joinGroupChoose(p.code, claimName || null, newName || null);
       const data = await fetchEverything(me.uid!, me.myName);
       setState((x) => ({ ...x, ...data, busy: false, joinPreview: null, screen: 'group', selectedGroup: gid, bubble: bubbleFor({ ...x, ...data }, 'group'), bubbleKey: x.bubbleKey + 1 }));
-      showToast('Připojeno do skupiny!');
+      showToast(t('Připojeno do skupiny!'));
     } catch (e: any) {
       setState((x) => ({ ...x, busy: false }));
       showToast(e.message === 'Tohle jméno už někdo zabral' ? 'To jméno už někdo zabral' : 'Připojení selhalo');
@@ -923,7 +935,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setState((x) => ({ ...x, ...data, busy: false, selectedGroup: g.id, shareCode: g.shareCode, screen: 'share_group', bubble: bubbleFor({ ...x, ...data }, 'share_group'), bubbleKey: x.bubbleKey + 1 }));
       } catch (e) {
         setState((x) => ({ ...x, busy: false }));
-        showToast('Skupinu se nepodařilo vytvořit');
+        showToast(t('Skupinu se nepodařilo vytvořit'));
       }
       return;
     }
@@ -939,7 +951,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const actions: Actions = {
     patch, showToast, navigate, goBack, openGroup, startAdd, startEdit, submitExpense, payDebt,
-    openContract, pokeMascot, setTheme, setContentSize, toggleSet, setPayer, togglePart, setCurrency, setSplitType, setCategory, setShare, doRegister, doLogin, sendPasswordReset, submitNewPassword, enterGoogle, enterApple, logout,
+    openContract, pokeMascot, setTheme, setContentSize, setLang, toggleSet, setPayer, togglePart, setCurrency, setSplitType, setCategory, setShare, doRegister, doLogin, sendPasswordReset, submitNewPassword, enterGoogle, enterApple, logout,
     startCreateGroup, addMember, removeMember, createGroup, openExpense, deleteExpense, deleteGroup,
     deleteAccount, startJoin, submitJoin, joinByCode, finishJoin, setMyName,
     refreshAll, refreshGroup,

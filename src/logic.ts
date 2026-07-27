@@ -1,13 +1,14 @@
 // Výpočet bilancí a optimalizace vyrovnání dluhů
 // "Já" = aktuálně přihlášený uživatel (v cloudu se na "Já" mapuje podle účtu)
-import { QUIPS } from './quips';
+import { QUIPS, QUIPS_EN } from './quips';
+import { t, getLang } from './i18n';
 import type { Group, Expense, Payment, Transfer, MoneyMap, ScreenName, AppState } from './types';
 
 type ExpenseList = Expense[] | undefined;
 type PaymentList = Payment[] | undefined;
 
 export function initial(name: string): string {
-  return name === 'Já' ? 'Já' : (name ? name[0].toUpperCase() : '?');
+  return name === 'Já' ? t('Já') : (name ? name[0].toUpperCase() : '?');
 }
 
 // Kolik z výdaje připadá na daného účastníka.
@@ -142,9 +143,10 @@ function pick<T>(arr: T[]): T {
 // Jinde se losuje náhodně z jednoho společného poolu (bez ohledu na bilanci).
 let _lastBubble: string | null = null;
 export function bubbleFor(_state: Partial<AppState>, screen: ScreenName): string {
-  if (screen === 'onboarding') return 'Čau lidi!';
-  let q = pick(QUIPS);
-  for (let i = 0; i < 6 && q.text === _lastBubble; i++) q = pick(QUIPS); // ať se neopakuje hned po sobě
+  if (screen === 'onboarding') return t('Čau lidi!');
+  const pool = getLang() === 'en' ? QUIPS_EN : QUIPS;
+  let q = pick(pool);
+  for (let i = 0; i < 6 && q.text === _lastBubble; i++) q = pick(pool); // ať se neopakuje hned po sobě
   _lastBubble = q.text;
   return q.text;
 }
