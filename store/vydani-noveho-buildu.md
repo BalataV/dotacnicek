@@ -5,6 +5,33 @@ soubor, ne jen zprávu v chatu.
 
 ---
 
+## ⚠️ Než pustíš build: zkontroluj číslo verze
+
+**Apple nepustí druhý build pod verzí, která už je schválená a vydaná.** Skončí
+to e-mailem `ITMS-90186 (train is closed)` + `ITMS-90062
+(CFBundleShortVersionString must be higher)`. Stalo se 29. 7. 2026 s verzí 1.1.
+
+Postup:
+1. App Store Connect → iOS History → jaká verze je **Ready for Distribution**?
+2. V `app.json` musí být `"version"` **vyšší** než ta.
+3. Stejné číslo pak založ i v App Store Connect (**+ Verze nebo platforma**).
+
+Android je benevolentnější — tam stačí rostoucí `versionCode`, který EAS
+inkrementuje sám. Ale **verzi drž na obou platformách stejnou**, viz níže.
+
+### A hned s tím: runtime verze
+
+`runtimeVersion.policy` je `appVersion`, takže **runtime = číslo verze**.
+Změnou verze na 1.2 tedy vzniká nová runtime — a buildy se starou runtime už
+OTA z této větve nedostanou.
+
+Proto: **když bumpneš verzi, vydej build pro OBĚ platformy.** Jinak zůstane
+jedna platforma na staré runtime a přestane dostávat OTA opravy, aniž by to
+bylo na první pohled vidět. Přesně tohle způsobilo, že testeři neviděli
+angličtinu.
+
+---
+
 ## Nejdřív: potřebuju vůbec nový build?
 
 | Co jsem změnil | Stačí OTA | Nutný build |
