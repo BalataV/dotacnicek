@@ -42,3 +42,6 @@ yarn-error.*
 
 # Hotové buildy stažené z EAS (AAB / IPA) – patří do obchodů, ne do gitu.
 builds/
+
+# Klic service accountu pro `eas submit` do Play Console – NIKDY necommitovat.
+google-play-service-account.json

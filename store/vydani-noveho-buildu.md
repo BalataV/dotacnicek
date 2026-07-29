@@ -1,0 +1,119 @@
+# 🚀 Vydání nového buildu — krok za krokem
+
+Návod pro Vojtu. Claude ho drží aktuální; když se něco změní, upraví tenhle
+soubor, ne jen zprávu v chatu.
+
+---
+
+## Nejdřív: potřebuju vůbec nový build?
+
+| Co jsem změnil | Stačí OTA | Nutný build |
+|---|---|---|
+| Texty, obrazovky, logika, opravy chyb, překlady | ✅ | |
+| `app.json` (oprávnění, capabilities, intent filtry, plugin) | | ✅ |
+| Přidaný nativní balíček (`expo install …`) | | ✅ |
+| Změna verze aplikace | | ✅ |
+
+**OTA** = `npx eas-cli update --branch production --message "…"`. Uživatel ji
+dostane při druhém spuštění appky, nic nenahrává.
+
+⚠️ OTA se posílá zvlášť pro každou **runtime verzi** (`runtimeVersion.policy =
+"appVersion"`, takže runtime = číslo verze). Kdo má v telefonu build s jinou
+verzí, aktualizaci nedostane. Tohle už jednou způsobilo, že testeři neviděli
+angličtinu — měli build s runtime 1.0.0, zatímco update šel na 1.1.
+
+---
+
+## 1. Android
+
+```bash
+npx eas-cli build --platform android --profile production --non-interactive --no-wait
+```
+
+Vypíše ID buildu. Stažení hotového artefaktu:
+
+```bash
+bash scripts/fetch-builds.sh <android-build-id> <ios-build-id>
+```
+
+Výsledek: **`builds/dotacnicek-android.aab`** (složka je v `.gitignore`).
+
+### Nahrání do Play Console
+1. Play Console → **Testování a vydání** → *Uzavřené testování – Alpha*
+   (nebo Produkce) → **Vytvořit nové vydání**
+2. Nahraj `.aab`
+3. **Název vydání**: popisný, např. `1.1 (6) – angličtina a přímé pozvánky`.
+   Vidíš ho jen ty, uživatelům se nezobrazuje.
+4. **Poznámky k vydání**: text ve značkách jazyka, max 500 znaků na jazyk:
+   ```
+   <cs-CZ>
+   …
+   </cs-CZ>
+   ```
+   Jiný jazyk než `cs-CZ` přidávej, až budeš mít pro něj i překlad popisu obchodu.
+
+Nebo jedním příkazem (vyžaduje `google-play-service-account.json`, viz níže):
+```bash
+npx eas-cli submit --platform android --latest
+```
+
+---
+
+## 2. iOS
+
+```bash
+npx eas-cli build --platform ios --profile production
+```
+
+**Bez `--non-interactive`**, pokud se měnily nativní schopnosti (Associated
+Domains, Push, …) — EAS se musí přihlásit k Apple účtu, aby capability zapnul
+a přegeneroval provisioning profil. Jinak build spadne na
+`doesn't support the … capability`.
+
+Odeslání do App Store Connect:
+```bash
+npx eas-cli submit --platform ios --latest
+```
+Nahrání trvá klidně **20–40 minut** — většinu času appka čeká ve frontě
+(`waiting for an available submitter`). To je normální, nech to běžet.
+
+Potom ještě Apple sám **zpracovává** build (dalších 5–30 min). Než doběhne,
+neobjeví se v App Store Connect v nabídce buildů.
+
+### V App Store Connect
+1. Moje aplikace → Dotačníček → **+ Verze nebo platforma** (u nové verze)
+2. **Build** → vyber zpracovaný build
+3. **What's New in This Version** — povinné u každé aktualizace
+4. Export compliance: šifrování **ne** (`usesNonExemptEncryption: false` už je
+   v `app.json`, takže se většinou ani nezeptá)
+5. **Add for Review** → **Submit**
+
+---
+
+## 3. Po vydání
+
+- **App Links ověřuje Android při instalaci.** Kdo má starou verzi, tomu odkaz
+  `dotacnicek.cz/join/?g=KÓD` dál otevře prohlížeč. Musí dostat nový build.
+- Kontrola propojení domény:
+  ```bash
+  curl "https://digitalassetlinks.googleapis.com/v1/assetlinks:check?source.web.site=https://dotacnicek.cz&relation=delegate_permission/common.handle_all_urls&target.android_app.package_name=com.balata.dotacnik&target.android_app.certificate.sha256_fingerprint=<OTISK>"
+  ```
+  Očekávaná odpověď: `"linked": true`.
+- Apple: `curl https://app-site-association.cdn-apple.com/a/v1/dotacnicek.cz`
+- Obě služby **cachují ~10 min až hodinu** — po změně souboru chvíli vracejí
+  staré hodnoty. Není to chyba.
+
+---
+
+## Jednorázová příprava (jen když chceš `eas submit` pro Android)
+
+1. Play Console → Nastavení → **Přístup k API** → Vytvořit nový účet služby
+2. V Google Cloud vytvoř service account a u něj **klíč typu JSON**
+3. Play Console → tomu účtu dej roli **Správce vydání** (Release Manager)
+4. Stažený JSON ulož jako `google-play-service-account.json` v kořeni projektu
+
+Soubor je citlivý (kdo ho má, může vydávat do obchodu) a je v `.gitignore` —
+repozitář `BalataV/dotacnicek` je veřejný kvůli GitHub Pages.
+
+Pro iOS je v EAS už uložený App Store Connect API klíč, takže `eas submit`
+funguje bez dalšího nastavování.

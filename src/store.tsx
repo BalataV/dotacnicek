@@ -839,12 +839,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // Návrat do odhlášeného stavu (po odhlášení i po smazání účtu).
+  //
+  // POZOR na `booting`: `makeInitialState()` ho nastavuje na `true`, protože při
+  // startu appky běží kontrola uložené session a Root do té doby drží splash.
+  // Po odhlášení ale žádná taková kontrola neběží – efekt, který `booting`
+  // vypíná, se pouští jen jednou při připojení providera. Bez explicitního
+  // `booting: false` proto appka zůstala viset na splashi s kolečkem až do
+  // restartu (nahlášeno 29. 7. 2026). Uživatelská nastavení zůstávají.
+  function resetToLoggedOut(s: AppState): AppState {
+    return {
+      ...makeInitialState(),
+      booting: false,
+      userTheme: s.userTheme,
+      contentSize: s.contentSize,
+      lang: s.lang,
+      langChosen: s.langChosen,
+      toggles: s.toggles,
+      googleEnabled: s.googleEnabled,
+      appleAvailable: s.appleAvailable,
+    };
+  }
+
   async function logout() {
     const uid = stateRef.current.meUid;
-    if (CLOUD_MODE) { try { await api.authApi.signOut(); } catch (e) {} }
     if (uid) AsyncStorage.removeItem(cacheKey(uid)).catch(() => {});
     meRef.current = null;
-    setState((s) => ({ ...makeInitialState(), userTheme: s.userTheme, contentSize: s.contentSize, toggles: s.toggles, googleEnabled: s.googleEnabled, appleAvailable: s.appleAvailable }));
+    setState((s) => resetToLoggedOut(s));
+    // Revokaci session na serveru záměrně NEawaitujeme. Lokálně je uživatel
+    // odhlášený hned; `supabase.auth.signOut()` navíc umí viset na zámku auth
+    // operací a uživatel by koukal na zablokovanou obrazovku.
+    if (CLOUD_MODE) { api.authApi.signOut().catch(() => {}); }
   }
 
   async function deleteAccount() {
@@ -855,7 +880,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     if (uid) AsyncStorage.removeItem(cacheKey(uid)).catch(() => {});
     meRef.current = null;
-    setState((s) => ({ ...makeInitialState(), userTheme: s.userTheme, contentSize: s.contentSize, toggles: s.toggles, googleEnabled: s.googleEnabled, appleAvailable: s.appleAvailable }));
+    setState((s) => resetToLoggedOut(s));
     showToast(t('Účet smazán'));
   }
 
