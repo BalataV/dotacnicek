@@ -99,10 +99,19 @@ zdrojový HTML editor a vlož celé). Upravujeme 3 šablony, zbytek se nepouží
 ```
 
 ## 3) Jak funguje tok potvrzení a obnovy (pro info)
+Oba odkazy míří na Site URL `https://dotacnicek.cz/app/`. Tam **není webová verze
+appky** – je to jednoúčelová statická stránka (`docs/app/index.html`), která umí
+jen tyhle dva e-mailové odkazy. Kdo na ni přijde bez platného `token_hash`,
+přesměruje se na `https://dotacnicek.cz`.
+
 - **Registrace:** appka ukáže „Zkontroluj e-mail pro potvrzení" → uživatel klikne
-  na odkaz → otevře se webová appka (Site URL) a účet je potvrzený → v appce se
-  přihlásí. Nepotvrzený login hlásí „Nejdřív potvrď e-mail".
+  na odkaz (`?token_hash=…&type=signup`) → stránka token ověří a ukáže
+  „E-mail je potvrzený" + odkazy do obchodů → uživatel se přihlásí v appce.
+  Nepotvrzený login hlásí „Nejdřív potvrď e-mail".
 - **Obnova hesla:** Login → „Zapomenuté heslo? Pošleme ti odkaz" (použije e-mail
-  z pole) → odkaz vede na `https://dotacnicek.cz/app/?reset=1` → webová appka
-  uživatele přihlásí a ukáže obrazovku **Nové heslo** → uloží → hotovo.
-  Funguje i pro uživatele z telefonu (odkaz se otevře v prohlížeči).
+  z pole) → odkaz (`?token_hash=…&type=recovery`) → stránka ukáže formulář
+  **Nové heslo** → uloží přes `PUT /auth/v1/user` → session hned zruší → hotovo,
+  uživatel se přihlásí v appce.
+
+Stránka nepoužívá žádnou knihovnu ani CDN (volá Supabase Auth REST přímo přes
+`fetch`) a session nikam neukládá – token drží jen v paměti do dokončení akce.

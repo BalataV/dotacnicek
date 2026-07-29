@@ -36,7 +36,7 @@ https://dotacnicek.cz
 ```
 Instagram povolí jen **jeden** klikatelný odkaz v bio (bez placeného Creator
 nástroje na víc odkazů) — proto směřuj na web, který už sám odkazuje dál na
-Google Play i webovou appku. Až budeš mít Linktree-style rozcestník, můžeš ho
+Google Play i App Store. Až budeš mít Linktree-style rozcestník, můžeš ho
 dát sem místo přímého odkazu.
 
 ### 6. Bannery (Highlight covers / Story Highlights)

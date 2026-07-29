@@ -35,7 +35,7 @@ ani institucí a nevyjadřuje žádná skutková tvrzení o nikom.
 |---|---|
 | Web Dotačníčku | `https://dotacnicek.cz` |
 | Stáhnout na Google Play | `https://play.google.com/store/apps/details?id=com.balata.dotacnik` |
-| Webová appka (funguje i na iPhonu) | `https://dotacnicek.cz/app/` |
+| Stáhnout na App Store | `https://apps.apple.com/app/id6794624597` |
 | Zásady ochrany osobních údajů | `https://dotacnicek.cz/privacy.html` |
 
 První odkaz se zobrazuje přímo na banneru kanálu — proto je první web.

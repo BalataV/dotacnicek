@@ -33,9 +33,12 @@ Pak máš tři možnosti, jak appku vidět:
 | Kde chci appku vidět | Co udělat |
 |----------------------|-----------|
 | **Na svém telefonu** (nejjednodušší) | Nainstaluj appku **Expo Go** (Google Play / App Store), spusť `npm start` a naskenuj QR kód z terminálu. |
-| **V prohlížeči na PC** | `npm run web` |
+| **V prohlížeči na PC** (jen pro vývoj) | `npm run web` |
 | **Android emulátor** | `npm run android` (potřebuje Android Studio) |
 | **iOS simulátor** | `npm run ios` (potřebuje Mac s Xcode) |
+
+> Dotačníček je **jen mobilní appka** — veřejná webová verze neexistuje a
+> nenasazuje se. `npm run web` je lokální nástroj pro vývoj a screenshoty.
 
 ## Struktura projektu
 

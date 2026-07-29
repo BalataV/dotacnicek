@@ -385,7 +385,7 @@
           <li><span class="num">2</span><span>Otevři appku a dej <strong>Připojit se do skupiny</strong>.</span></li>
           <li><span class="num">3</span><span>Zadej kód <strong id="codeInline">——————</strong> a hotovo.</span></li>
         </ol>
-        <div class="stores stores-center" style="margin-bottom:14px">
+        <div class="stores stores-center">
           <a class="store-badge" id="appleInvite" href="#" target="_blank" rel="noopener">
             <img src="img/appstore-cs.svg" alt="Stáhnout v App Store" width="119" height="40" />
           </a>
@@ -393,7 +393,6 @@
             <img src="img/googleplay-cs.png" alt="Nyní na Google Play" width="646" height="192" />
           </a>
         </div>
-        <a id="webInvite" class="btn btn-block" href="#" target="_blank" rel="noopener">🌐 Otevřít webovou verzi</a>
       </div>
 
       <footer>
@@ -442,7 +441,7 @@
             </a>
           </div>
           <p class="note">Zdarma. Bez reklam. Synchronizace v reálném čase.<br />
-            Nechceš nic instalovat? Zkus <a id="webHero" href="#" target="_blank" rel="noopener" style="font-weight:800;color:var(--accent)">webovou verzi</a>.</p>
+            Pro iPhone i Android.</p>
         </div>
         <div class="shot"><img src="img/shot-uvod.png" alt="Úvodní obrazovka aplikace Dotačníček" width="640" height="1138" /></div>
       </div>
@@ -585,7 +584,7 @@
         </details>
         <details class="faq reveal" style="--d:.06s">
           <summary>Funguje na iPhonu?</summary>
-          <div class="a">Ano — Dotačníček je na App Storu jako plnohodnotná iPhone appka, zdarma. Potřebuješ iOS 15.1 nebo novější. Kdo nechce nic instalovat, může použít <a href="app/" target="_blank" rel="noopener">webovou verzi</a>: otevři ji v Safari a přidej na plochu (Sdílet → Přidat na plochu).</div>
+          <div class="a">Ano — Dotačníček je na App Storu jako plnohodnotná iPhone appka, zdarma. Potřebuješ iOS 15.1 nebo novější. Na Androidu ho najdeš na Google Play.</div>
         </details>
         <details class="faq reveal" style="--d:.12s">
           <summary>Vidí moje útraty někdo cizí?</summary>
@@ -612,7 +611,7 @@
             </a>
           </div>
           <p style="margin-top:18px;margin-bottom:0;font-size:14px;opacity:.6;font-weight:700">
-            Nebo rovnou <a id="webFinal" href="#" target="_blank" rel="noopener" style="font-weight:800;color:var(--accent)">webová verze</a> — bez instalace.
+            Zdarma, bez reklam, pro iPhone i Android.
           </p>
         </div>
       </div>
@@ -634,7 +633,8 @@
 
   <script>
     // === Odkazy na stažení ===
-    // App Store (iOS), Google Play (Android) a webová verze pro kohokoli.
+    // Dotačníček je jen mobilní appka – App Store (iOS) a Google Play (Android).
+    // Webová verze neexistuje; /app/ obsluhuje výhradně odkazy z e-mailů.
     // POZOR: android package zůstává com.balata.dotacnik (zamčený v Play Console),
     // zatímco iOS bundle je com.balata.dotacnicek — nejsou stejné.
     // Play odkaz začne fungovat, až appku schválí Google Play.
@@ -642,7 +642,6 @@
     // App Store: adresa bez země — Apple sám přesměruje na obchod podle
     // lokality návštěvníka. iOS bundle je com.balata.dotacnicek.
     var APPSTORE_URL = 'https://apps.apple.com/app/id6794624597';
-    var WEB_URL = 'https://dotacnicek.cz/app/';
 
     // Uživatel si nepřeje animace? Respektujeme to a nic nespouštíme.
     var CALM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -659,11 +658,6 @@
         var el = document.getElementById(id);
         if (el) el.href = APPSTORE_URL;
       });
-      ['webInvite', 'webHero', 'webFinal'].forEach(function (id) {
-        var el = document.getElementById(id);
-        if (el) el.href = WEB_URL;
-      });
-
       if (code) {
         // Režim POZVÁNKA
         document.getElementById('invite').classList.remove('hidden');

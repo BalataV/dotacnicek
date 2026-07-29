@@ -13,8 +13,8 @@ Máš hotový **placený Developer účet** ✅. Než začneš, připrav si i zb
 - [ ] **Ikona 512×512** – hotová: `store/play-icon-512.png`.
 - [ ] **Feature graphic 1024×500** – vyexportuj z `store/feature-graphic.svg` do PNG
       (otevři v prohlížeči a vyfoť na 1024×500, nebo Inkscape → Export).
-- [ ] **Aspoň 2 screenshoty telefonu** – nafoť z webové verze nebo z appky v telefonu
-      (Přehled, Detail skupiny, Audit NKÚ… viz `store/screenshots-guide.md`).
+- [ ] **Aspoň 2 screenshoty telefonu** – nafoť z appky v telefonu nebo z lokálního
+      `expo start --web` (Přehled, Detail skupiny, Audit NKÚ… viz `store/screenshots-guide.md`).
 - [ ] **Testovací účet** pro recenzenty – v appce si založ jeden účet přes e-mail
       (Registrovat přes e-mail). E-mail + heslo si poznamenej, budeš je vkládat níže.
 
