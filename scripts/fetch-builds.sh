@@ -29,8 +29,12 @@ wait_and_download() {
     return 1
   fi
 
-  url=$(npx eas-cli@latest build:view "$id" --json 2>/dev/null \
-    | python -c "import sys,json; print((json.load(sys.stdin).get('artifacts') or {}).get('applicationArchiveUrl',''))")
+  local info ver
+  info=$(npx eas-cli@latest build:view "$id" --json 2>/dev/null)
+  url=$(printf '%s' "$info" | python -c "import sys,json; print((json.load(sys.stdin).get('artifacts') or {}).get('applicationArchiveUrl',''))")
+  # Verzi dáváme do názvu souboru – běžně máme rozpracované dvě najednou
+  # (jedna v kontrole v obchodě, druhá čerstvá) a přepsat si je je otrava.
+  ver=$(printf '%s' "$info" | python -c "import sys,json; d=json.load(sys.stdin); print('%s-%s' % (d.get('appVersion','x'), d.get('appBuildVersion','x')))")
 
   if [ -z "$url" ]; then
     echo "$label: hotovo, ale chybi odkaz na artefakt"
@@ -38,8 +42,8 @@ wait_and_download() {
   fi
 
   echo "$label: stahuji…"
-  curl -sL "$url" -o "builds/dotacnicek-$label.$ext" || { echo "$label: stazeni selhalo"; return 1; }
-  echo "$label: ulozeno do builds/dotacnicek-$label.$ext"
+  curl -sL "$url" -o "builds/dotacnicek-$label-$ver.$ext" || { echo "$label: stazeni selhalo"; return 1; }
+  echo "$label: ulozeno do builds/dotacnicek-$label-$ver.$ext"
 }
 
 rc=0
