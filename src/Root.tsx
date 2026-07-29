@@ -128,8 +128,12 @@ export default function Root() {
   else if (sc === 'smlouva') Screen = <Smlouva />;
   else if (sc === 'activity') Screen = <Activity />;
 
+  // Edge-to-edge (Android 15+): obsah kreslíme pod systémové lišty, takže si
+  // odsazení řešíme sami. Dole ho přidáváme jen na obrazovkách bez spodní lišty
+  // (onboarding, přihlášení…) – jinak by se odsazení sečetlo dvakrát, spodní
+  // lišta má insets.bottom už ve svém paddingBottom.
   return (
-    <View style={{ flex: 1, backgroundColor: showChrome ? c.card : c.bg, paddingTop: insets.top }}>
+    <View style={{ flex: 1, backgroundColor: showChrome ? c.card : c.bg, paddingTop: insets.top, paddingBottom: showChrome ? 0 : insets.bottom }}>
       {/* Zavírání klávesnice řeší samy ScrollView přes keyboardShouldPersistTaps
           (ťuknutí mimo pole) a keyboardDismissMode="on-drag" (scroll). Žádný
           celoplošný Pressable – ten na Androidu bral doteky a rozbíjel scroll. */}
