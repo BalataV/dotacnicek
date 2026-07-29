@@ -12,6 +12,7 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.balata.dotacnicek",
       "usesAppleSignIn": true,
+      "associatedDomains": ["applinks:dotacnicek.cz"],
       "config": {
         "usesNonExemptEncryption": false
       }
@@ -19,6 +20,20 @@
     "android": {
       "package": "com.balata.dotacnik",
       "edgeToEdgeEnabled": true,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "dotacnicek.cz",
+              "pathPrefix": "/join"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",

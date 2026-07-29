@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "NAHRAD_ME_TEAM_ID.com.balata.dotacnicek",
+        "paths": ["/join/*"]
+      }
+    ]
+  }
+}

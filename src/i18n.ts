@@ -7,21 +7,45 @@
 // POZOR: hlášky maskota (quips.ts) mají vlastní anglickou sadu – česká
 // politická satira přeložit nejde, tak má EN verze vlastní vtipy.
 
+import { NativeModules, Platform } from 'react-native';
+
 export type Lang = 'cs' | 'en';
 
 // ---------------------------------------------------------------- detekce
-function detectLang(): Lang {
+// POZOR: `navigator.language` v React Native NEEXISTUJE (RN doplňuje jen
+// `product`/`userAgent`) a `Intl` na Hermesu umí vrátit `en-US` i na česky
+// nastaveném telefonu. Původní detekce proto na Androidu hlásila angličtinu
+// a Čechům chodily anglické pozvánky. Bereme tedy locale přímo z nativních
+// modulů RN – jsou součástí jádra, takže to jde vydat i přes `eas update`.
+function deviceLocale(): string {
   try {
-    // web
     if (typeof navigator !== 'undefined' && (navigator as any).language) {
-      return String((navigator as any).language).toLowerCase().startsWith('cs') ? 'cs' : 'en';
+      return String((navigator as any).language); // web
     }
-    // nativní (Hermes s ICU)
-    const loc = Intl.DateTimeFormat().resolvedOptions().locale || '';
-    return loc.toLowerCase().startsWith('cs') ? 'cs' : 'en';
-  } catch (e) {
-    return 'cs';
-  }
+  } catch (e) {}
+  try {
+    if (Platform.OS === 'android') {
+      const id = (NativeModules as any)?.I18nManager?.localeIdentifier; // „cs_CZ"
+      if (id) return String(id);
+    } else if (Platform.OS === 'ios') {
+      const s = (NativeModules as any)?.SettingsManager?.settings;
+      const l = s?.AppleLocale || (Array.isArray(s?.AppleLanguages) ? s.AppleLanguages[0] : null);
+      if (l) return String(l);
+    }
+  } catch (e) {}
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().locale || '';
+  } catch (e) {}
+  return '';
+}
+
+function detectLang(): Lang {
+  const loc = deviceLocale().toLowerCase().replace('_', '-');
+  // Nevíme-li nic jistého, držíme češtinu – appka cílí na české publikum.
+  if (!loc) return 'cs';
+  // Slovákům je čeština bližší než angličtina.
+  if (loc.startsWith('cs') || loc.startsWith('sk')) return 'cs';
+  return 'en';
 }
 
 let current: Lang = detectLang();

@@ -53,6 +53,7 @@ function makeInitialState(): AppState {
     userTheme: 'zluta',
     contentSize: 'medium',
     lang: getLang(),
+    langChosen: false,
     toggles: { notif: true, sound: false },
     regEmail: '', regPassword: '',
     loginEmail: '', loginPassword: '',
@@ -103,12 +104,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (raw) {
           const saved = JSON.parse(raw);
           if (saved.contentSize) setGlobalFontScale(CONTENT_SCALE[saved.contentSize as keyof typeof CONTENT_SCALE] || 1);
-          if (saved.lang === 'cs' || saved.lang === 'en') setLangGlobal(saved.lang);
+          // Uložený jazyk respektujeme jen tehdy, když si ho uživatel opravdu
+          // vybral v Profilu. Bez `langChosen` jde o starý zápis z autodetekce
+          // (ta na Androidu chybně hlásila angličtinu) – takový radši
+          // zahodíme a detekujeme znovu, jinak by chyba zůstala navždy.
+          const savedLang = saved.langChosen && (saved.lang === 'cs' || saved.lang === 'en') ? saved.lang : null;
+          if (savedLang) setLangGlobal(savedLang);
           setState((s) => ({
             ...s,
             userTheme: saved.userTheme || s.userTheme,
             contentSize: saved.contentSize || s.contentSize,
-            lang: (saved.lang === 'cs' || saved.lang === 'en') ? saved.lang : s.lang,
+            lang: savedLang || s.lang,
+            langChosen: !!savedLang,
             toggles: saved.toggles || s.toggles,
             // lokální data se obnoví jen v lokálním režimu
             groups: CLOUD_MODE ? s.groups : (saved.groups || s.groups),
@@ -233,8 +240,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   function parseJoinCode(url: string | null): string | null {
     if (!url) return null;
-    const m = /join\/([A-Za-z0-9]+)/.exec(url);
-    return m ? m[1].toUpperCase() : null;
+    // `dotacnicek://join/KÓD` – vlastní scheme
+    const path = /join\/([A-Za-z0-9]+)/.exec(url);
+    if (path) return path[1].toUpperCase();
+    // `https://dotacnicek.cz/join/?g=KÓD` – App Link / Universal Link.
+    // Stejný tvar chytí i starší odkazy `https://dotacnicek.cz/?g=KÓD`,
+    // které lidem pořád visí v konverzacích.
+    const query = /[?&]g=([A-Za-z0-9]+)/.exec(url);
+    return query ? query[1].toUpperCase() : null;
   }
 
   // Přišli jsme z e-mailového odkazu na obnovu hesla? Poznáme to podle typu
@@ -296,10 +309,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!loaded.current) return;
     const slice = CLOUD_MODE
-      ? { userTheme: state.userTheme, contentSize: state.contentSize, lang: state.lang, toggles: state.toggles }
-      : { userTheme: state.userTheme, contentSize: state.contentSize, lang: state.lang, toggles: state.toggles, groups: state.groups, expenses: state.expenses, payments: state.payments };
+      ? { userTheme: state.userTheme, contentSize: state.contentSize, lang: state.lang, langChosen: state.langChosen, toggles: state.toggles }
+      : { userTheme: state.userTheme, contentSize: state.contentSize, lang: state.lang, langChosen: state.langChosen, toggles: state.toggles, groups: state.groups, expenses: state.expenses, payments: state.payments };
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(slice)).catch(() => {});
-  }, [state.groups, state.expenses, state.payments, state.userTheme, state.contentSize, state.lang, state.toggles]);
+    // `langChosen` musí být v závislostech taky: kdo si ručně zvolí právě ten
+    // jazyk, který už byl nadetekovaný, jinak `lang` nezmění a volba by se
+    // neuložila (a při dalším startu by se zase jen detekovalo).
+  }, [state.groups, state.expenses, state.payments, state.userTheme, state.contentSize, state.lang, state.langChosen, state.toggles]);
 
   // ---------- pomocné ----------
   function patch(p: Partial<AppState> | ((s: AppState) => Partial<AppState>)) { setState((s) => ({ ...s, ...(typeof p === 'function' ? p(s) : p) })); }
@@ -702,7 +718,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setLangGlobal(l);
     // hláška v bublině je uložená ve stavu – po přepnutí ji přegenerujeme,
     // jinak by u české appky zůstala viset anglická věta (a naopak)
-    setState((s) => ({ ...s, lang: l, bubble: bubbleFor(s, s.screen), bubbleKey: s.bubbleKey + 1 }));
+    setState((s) => ({ ...s, lang: l, langChosen: true, bubble: bubbleFor(s, s.screen), bubbleKey: s.bubbleKey + 1 }));
   }
 
   function toggleSet(k: keyof AppState['toggles']) { setState((s) => ({ ...s, toggles: { ...s.toggles, [k]: !s.toggles[k] } })); }

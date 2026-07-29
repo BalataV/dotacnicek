@@ -1,6 +1,6 @@
 // Hlavní obal aplikace: hlavička s maskotem, přepínání obrazovek, spodní navigace
 import React, { useEffect } from 'react';
-import { View, Text, Pressable, StatusBar, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, StatusBar, ActivityIndicator, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FONTS } from './theme';
 import { t } from './i18n';
@@ -128,6 +128,15 @@ export default function Root() {
   else if (sc === 'smlouva') Screen = <Smlouva />;
   else if (sc === 'activity') Screen = <Activity />;
 
+  // Spodní lišta: plný `insets.bottom` dělal na iPhonu nápadně vysoký bílý pruh
+  // (34 px home indicator + 11 px vlastního odsazení). Na iOS proto z insetu
+  // ubereme – 22 px pořád s rezervou přesahuje ~21px home indicator. Na Androidu
+  // inset naopak necháme celý (gesture pill potřebuje svých ~24 dp) a zkrátíme
+  // jen vlastní odsazení, ať se tlačítka nedostanou pod systémový pruh.
+  const navBarBottom = Platform.OS === 'ios'
+    ? Math.max(6, insets.bottom - 12)
+    : insets.bottom + 6;
+
   // Edge-to-edge (Android 15+): obsah kreslíme pod systémové lišty, takže si
   // odsazení řešíme sami. Dole ho přidáváme jen na obrazovkách bez spodní lišty
   // (onboarding, přihlášení…) – jinak by se odsazení sečetlo dvakrát, spodní
@@ -140,9 +149,9 @@ export default function Root() {
       <View style={{ flex: 1, backgroundColor: c.bg }}>
         {showChrome && (
           <View style={{ backgroundColor: c.card, borderBottomWidth: 3, borderBottomColor: c.ink, zIndex: 6 }}>
-            <View style={{ width: '100%', maxWidth: MAX_W, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 13, paddingBottom: 14 }}>
+            <View style={{ width: '100%', maxWidth: MAX_W, alignSelf: 'center', paddingHorizontal: 16, paddingTop: 9, paddingBottom: 10 }}>
               <Text style={{ fontFamily: FONTS.display700, fontSize: 23, color: c.ink, letterSpacing: -0.6 }}>Dotačníček</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 10, marginTop: 11 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 10, marginTop: 8 }}>
                 <Pressable onPress={actions.pokeMascot} accessibilityRole="image" accessibilityLabel={t('Maskot Dotačníčku')}>
                   <Mascot size={56} alt={isAltQuip(state.bubble)} mood={state.mascotMood} />
                 </Pressable>
@@ -155,7 +164,7 @@ export default function Root() {
         <View style={{ flex: 1, width: '100%', maxWidth: MAX_W, alignSelf: 'center' }}>{Screen}</View>
 
         {showChrome && (
-          <View style={{ backgroundColor: c.card, borderTopWidth: 3, borderTopColor: c.ink, paddingTop: 10, paddingBottom: 11 + insets.bottom }}>
+          <View style={{ backgroundColor: c.card, borderTopWidth: 3, borderTopColor: c.ink, paddingTop: 7, paddingBottom: navBarBottom }}>
             <View style={{ width: '100%', maxWidth: MAX_W, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingHorizontal: 6 }}>
               {/* Rozpočet ze spodní lišty odebrán (2026-07-26) – obrazovka zůstává,
                   vede na ni tlačítko „Rozpočet" v detailu skupiny. */}

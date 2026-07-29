@@ -132,8 +132,13 @@
     }
 
     /* ===== Horní lišta ===== */
-    .topbar { position: sticky; top: 0; z-index: 60; padding: 14px 0; background: var(--bg); transition: box-shadow .25s var(--ease), padding .25s var(--ease); }
-    .topbar.stuck { box-shadow: 0 3px 0 var(--ink); padding: 8px 0; }
+    /* POZOR: výška lišty musí zůstat KONSTANTNÍ. Dřív `.stuck` zmenšovala
+       padding (14→8px); protože je lišta sticky a v běžném toku, zkrátila tím
+       dokument o 12 px, obsah poskočil, scrollY spadlo zpět pod práh a třída se
+       zase odebrala — nekonečné blikání kousek pod vrcholem stránky.
+       Přepínáme proto jen stín, který na layout nesahá. */
+    .topbar { position: sticky; top: 0; z-index: 60; padding: 14px 0; background: var(--bg); transition: box-shadow .25s var(--ease); }
+    .topbar.stuck { box-shadow: 0 3px 0 var(--ink); }
     .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .brand { display: flex; align-items: center; gap: 12px; }
     .brand .logo {
@@ -711,8 +716,13 @@
       // --- Stín pod lištou po odscrollování ---
       var topbar = document.getElementById('topbar');
       if (topbar) {
+        // Hystereze: stín naskočí až ve 24 px a zmizí zpátky pod 8 px, ať
+        // dojezd scrollu nebo chvění trackpadu nepřepíná třídu tam a zpět.
+        var stuck = false;
         var onScroll = function () {
-          topbar.classList.toggle('stuck', window.scrollY > 8);
+          var y = window.scrollY;
+          if (!stuck && y > 24) { stuck = true; topbar.classList.add('stuck'); }
+          else if (stuck && y < 8) { stuck = false; topbar.classList.remove('stuck'); }
         };
         window.addEventListener('scroll', onScroll, { passive: true });
         onScroll();

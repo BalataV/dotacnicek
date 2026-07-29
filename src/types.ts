@@ -90,6 +90,9 @@ export interface AppState {
   userTheme: ThemeName;
   contentSize: ContentSize;
   lang: Lang;
+  // true = jazyk zvolil uživatel ručně v Profilu. Když je false, `lang` je jen
+  // výsledek autodetekce a při startu se detekuje znovu (viz store.tsx).
+  langChosen: boolean;
   toggles: Toggles;
   regEmail: string;
   regPassword: string;

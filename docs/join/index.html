@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Pozvánka do skupiny — Dotačníček</title>
+  <link rel="icon" href="../img/favicon.png" />
+  <style>
+    body { background: #FFD60A; color: #15233B; font-family: system-ui, sans-serif;
+           display: flex; align-items: center; justify-content: center; min-height: 100vh;
+           margin: 0; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <p>Otevírám pozvánku…</p>
+  <script>
+    /*
+     * Tuhle adresu (`/join/?g=KÓD`) sdílí appka. Kdo má Dotačníčka
+     * nainstalovaného, tomu ji systém otevře rovnou v appce a sem se vůbec
+     * nedostane (Android App Links / iOS Universal Links). Sem tedy dojdou jen
+     * lidé bez appky — ty pošleme na landing page s kartou pozvánky.
+     *
+     * Vlastní cesta `/join/` je nutná: App Links se filtrují podle cesty, a
+     * kdyby pozvánka byla na kořeni, appka by spolkla i `/app/?token_hash=…`
+     * (potvrzení e-mailu, obnova hesla) a ty musí zůstat v prohlížeči.
+     */
+    var code = (new URLSearchParams(window.location.search).get('g') || '')
+      .toUpperCase().replace(/[^A-Z0-9]/g, '');
+    window.location.replace(code ? '/?g=' + code : '/');
+  </script>
+  <noscript><p>Pokračuj na <a href="/">dotacnicek.cz</a>.</p></noscript>
+</body>
+</html>

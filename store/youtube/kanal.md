@@ -22,7 +22,8 @@ Najdeš tu ukázky funkcí, novinky z vývoje a tipy, jak se vyrovnat bez hádek
 — a k tomu trochu satiry.
 
 📲 Android: https://play.google.com/store/apps/details?id=com.balata.dotacnik
-🌐 Web i pro iPhone: https://dotacnicek.cz
+🍏 iPhone: https://apps.apple.com/app/id6794624597
+🌐 Web: https://dotacnicek.cz
 ✉️ Kontakt: podpora@dotacnicek.cz
 
 Dotačníček je nezávislá satirická aplikace. Maskot i hlášky jsou karikatura,
