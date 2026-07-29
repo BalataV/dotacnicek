@@ -11,7 +11,7 @@ wait_and_download() {
   local status url tries=0
 
   while [ "$tries" -lt 120 ]; do
-    status=$(npx eas-cli@latest build:view "$id" --json --non-interactive 2>/dev/null \
+    status=$(npx eas-cli@latest build:view "$id" --json 2>/dev/null \
       | python -c "import sys,json; print(json.load(sys.stdin).get('status',''))" 2>/dev/null)
 
     case "$status" in
@@ -29,7 +29,7 @@ wait_and_download() {
     return 1
   fi
 
-  url=$(npx eas-cli@latest build:view "$id" --json --non-interactive 2>/dev/null \
+  url=$(npx eas-cli@latest build:view "$id" --json 2>/dev/null \
     | python -c "import sys,json; print((json.load(sys.stdin).get('artifacts') or {}).get('applicationArchiveUrl',''))")
 
   if [ -z "$url" ]; then
