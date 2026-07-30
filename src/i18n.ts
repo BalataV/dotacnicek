@@ -7,7 +7,7 @@
 // POZOR: hlášky maskota (quips.ts) mají vlastní anglickou sadu – česká
 // politická satira přeložit nejde, tak má EN verze vlastní vtipy.
 
-import { NativeModules, Platform } from 'react-native';
+import { I18nManager, NativeModules, Platform } from 'react-native';
 
 export type Lang = 'cs' | 'en';
 
@@ -23,16 +23,33 @@ function deviceLocale(): string {
       return String((navigator as any).language); // web
     }
   } catch (e) {}
-  try {
-    if (Platform.OS === 'android') {
-      const id = (NativeModules as any)?.I18nManager?.localeIdentifier; // „cs_CZ"
-      if (id) return String(id);
-    } else if (Platform.OS === 'ios') {
-      const s = (NativeModules as any)?.SettingsManager?.settings;
+
+  if (Platform.OS === 'android') {
+    // Oficiální cesta je `I18nManager.getConstants().localeIdentifier` (vrací
+    // třeba „cs_CZ"). Čtení `NativeModules.I18nManager.localeIdentifier` je jen
+    // záloha – konstanty se na modul propisovaly na starém bridgi, s
+    // TurboModules to zaručené není.
+    try {
+      const c = (I18nManager as any)?.getConstants?.();
+      if (c?.localeIdentifier) return String(c.localeIdentifier);
+    } catch (e) {}
+    try {
+      const m = (NativeModules as any)?.I18nManager;
+      const v = m?.localeIdentifier ?? m?.getConstants?.()?.localeIdentifier;
+      if (v) return String(v);
+    } catch (e) {}
+  } else if (Platform.OS === 'ios') {
+    // SettingsManager vystavuje NSUserDefaults, kde je AppleLocale i AppleLanguages.
+    try {
+      const m = (NativeModules as any)?.SettingsManager;
+      const s = m?.settings ?? m?.getConstants?.()?.settings;
       const l = s?.AppleLocale || (Array.isArray(s?.AppleLanguages) ? s.AppleLanguages[0] : null);
       if (l) return String(l);
-    }
-  } catch (e) {}
+    } catch (e) {}
+  }
+
+  // Poslední záchrana. Na Hermesu umí vrátit en-US i na česky nastaveném
+  // telefonu, takže se na ni nespoléháme – ale je lepší než nic.
   try {
     return Intl.DateTimeFormat().resolvedOptions().locale || '';
   } catch (e) {}
