@@ -84,6 +84,26 @@ Nebo jedním příkazem (vyžaduje `google-play-service-account.json`, viz níž
 npx eas-cli submit --platform android --latest
 ```
 
+### Cesta do produkce
+
+Nejde jen nahrát AAB do Produkce — Google chce nejdřív **žádost o produkční
+přístup** (Play Console → Testování a vydání → Produkce). Vyplňuje se dotazník
+o uzavřeném testu, aplikaci a připravenosti; schválení nějakou dobu trvá.
+Podané odpovědi jsou v `store/produkcni-pristup.md`.
+
+Až je přístup schválený, jsou dvě možnosti:
+
+1. **Povýšit existující vydání** (Uzavřené testování → Povýšit vydání →
+   Produkce). Do produkce jde **přesně ten balíček, který testeři měli
+   otestovaný** — nejbezpečnější varianta a normální postup.
+2. **Nahrát nový build.** Dává smysl, když od posledního buildu odešly OTA
+   opravy: nové instalace je totiž při prvním spuštění ještě nemají (stáhnou
+   se až potom). Nový build je má rovnou v sobě.
+
+⚠️ **Procento pro vydávání**: u prvního produkčního vydání začni na 20 %.
+Když se objeví pády nebo špatné hodnocení, zastavíš to dřív, než to uvidí
+všichni. Postupně navyšuj na 100 %.
+
 ---
 
 ## 2. iOS
