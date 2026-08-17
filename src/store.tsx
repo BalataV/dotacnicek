@@ -105,9 +105,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           const saved = JSON.parse(raw);
           if (saved.contentSize) setGlobalFontScale(CONTENT_SCALE[saved.contentSize as keyof typeof CONTENT_SCALE] || 1);
           // Uložený jazyk respektujeme jen tehdy, když si ho uživatel opravdu
-          // vybral v Profilu. Bez `langChosen` jde o starý zápis z autodetekce
-          // (ta na Androidu chybně hlásila angličtinu) – takový radši
-          // zahodíme a detekujeme znovu, jinak by chyba zůstala navždy.
+          // vybral v Profilu. Bez `langChosen` jde o starý zápis z dřívější
+          // autodetekce (ta na Androidu chybně hlásila angličtinu) – takový
+          // zahodíme a spadneme na výchozí češtinu, jinak by chyba zůstala
+          // navždy i po jejím odstranění.
           const savedLang = saved.langChosen && (saved.lang === 'cs' || saved.lang === 'en') ? saved.lang : null;
           if (savedLang) setLangGlobal(savedLang);
           setState((s) => ({

@@ -1,75 +1,30 @@
 // Překlady aplikace. Klíčem je ČESKÁ věta – v češtině se tedy vrací rovnou
 // klíč a chybějící překlad nikdy nerozbije UI (spadne zpátky do češtiny).
 //
-// Jazyk se nedetekuje přes nativní balíček (ten by vyžadoval nový build),
-// ale z Intl/navigatoru – díky tomu jde lokalizace vydat i přes `eas update`.
+// Výchozí jazyk je natvrdo čeština, viz komentář u DEFAULT_LANG níž.
 //
 // POZOR: hlášky maskota (quips.ts) mají vlastní anglickou sadu – česká
 // politická satira přeložit nejde, tak má EN verze vlastní vtipy.
 
-import { I18nManager, NativeModules, Platform } from 'react-native';
-
 export type Lang = 'cs' | 'en';
 
-// ---------------------------------------------------------------- detekce
-// POZOR: `navigator.language` v React Native NEEXISTUJE (RN doplňuje jen
-// `product`/`userAgent`) a `Intl` na Hermesu umí vrátit `en-US` i na česky
-// nastaveném telefonu. Původní detekce proto na Androidu hlásila angličtinu
-// a Čechům chodily anglické pozvánky. Bereme tedy locale přímo z nativních
-// modulů RN – jsou součástí jádra, takže to jde vydat i přes `eas update`.
-function deviceLocale(): string {
-  try {
-    if (typeof navigator !== 'undefined' && (navigator as any).language) {
-      return String((navigator as any).language); // web
-    }
-  } catch (e) {}
+// ------------------------------------------------------------ výchozí jazyk
+// Appka se vydává jen pro Česko a Slovensko, takže při prvním spuštění
+// nastupuje vždy čeština – bez ohledu na jazyk telefonu. Angličtina zůstává
+// dostupná ručně v Profilu → Jazyk a taková volba se pamatuje (`langChosen`
+// ve store; bez ní by se při každém startu vrátila zpátky čeština).
+//
+// Dřív se jazyk odvozoval z locale telefonu. Nebylo to spolehlivé – `Intl` na
+// Hermesu vrací `en-US` i na česky nastaveném přístroji, takže Čechům chodily
+// anglické pozvánky. Kdyby se distribuce rozšířila do dalších zemí, autodetekce
+// (`I18nManager.getConstants().localeIdentifier` na Androidu,
+// `SettingsManager.settings` na iOS) je v historii gitu – commit 88b24a1.
+const DEFAULT_LANG: Lang = 'cs';
 
-  if (Platform.OS === 'android') {
-    // Oficiální cesta je `I18nManager.getConstants().localeIdentifier` (vrací
-    // třeba „cs_CZ"). Čtení `NativeModules.I18nManager.localeIdentifier` je jen
-    // záloha – konstanty se na modul propisovaly na starém bridgi, s
-    // TurboModules to zaručené není.
-    try {
-      const c = (I18nManager as any)?.getConstants?.();
-      if (c?.localeIdentifier) return String(c.localeIdentifier);
-    } catch (e) {}
-    try {
-      const m = (NativeModules as any)?.I18nManager;
-      const v = m?.localeIdentifier ?? m?.getConstants?.()?.localeIdentifier;
-      if (v) return String(v);
-    } catch (e) {}
-  } else if (Platform.OS === 'ios') {
-    // SettingsManager vystavuje NSUserDefaults, kde je AppleLocale i AppleLanguages.
-    try {
-      const m = (NativeModules as any)?.SettingsManager;
-      const s = m?.settings ?? m?.getConstants?.()?.settings;
-      const l = s?.AppleLocale || (Array.isArray(s?.AppleLanguages) ? s.AppleLanguages[0] : null);
-      if (l) return String(l);
-    } catch (e) {}
-  }
-
-  // Poslední záchrana. Na Hermesu umí vrátit en-US i na česky nastaveném
-  // telefonu, takže se na ni nespoléháme – ale je lepší než nic.
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().locale || '';
-  } catch (e) {}
-  return '';
-}
-
-function detectLang(): Lang {
-  const loc = deviceLocale().toLowerCase().replace('_', '-');
-  // Nevíme-li nic jistého, držíme češtinu – appka cílí na české publikum.
-  if (!loc) return 'cs';
-  // Slovákům je čeština bližší než angličtina.
-  if (loc.startsWith('cs') || loc.startsWith('sk')) return 'cs';
-  return 'en';
-}
-
-let current: Lang = detectLang();
+let current: Lang = DEFAULT_LANG;
 
 export function getLang(): Lang { return current; }
 export function setLangGlobal(l: Lang) { current = l; }
-export function detectedLang(): Lang { return detectLang(); }
 
 // Překlad. `vars` nahradí {placeholdery}: t('Zaplatit {kdo}', { kdo: 'Ota' }).
 export function t(cs: string, vars?: Record<string, string | number>): string {
