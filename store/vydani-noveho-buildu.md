@@ -57,13 +57,14 @@ angličtinu — měli build s runtime 1.0.0, zatímco update šel na 1.1.
 npx eas-cli build --platform android --profile production --non-interactive --no-wait
 ```
 
-Vypíše ID buildu. Stažení hotového artefaktu:
+Vypíše ID buildu. Stažení hotového artefaktu (platformu si skript zjistí sám,
+klidně mu předej víc ID najednou):
 
 ```bash
-bash scripts/fetch-builds.sh <android-build-id> <ios-build-id>
+bash scripts/fetch-builds.sh <build-id> [<build-id> …]
 ```
 
-Výsledek: **`builds/dotacnicek-android.aab`** (složka je v `.gitignore`).
+Výsledek: **`builds/dotacnicek-android-<verze>.aab`** (složka je v `.gitignore`).
 
 ### Nahrání do Play Console
 1. Play Console → **Testování a vydání** → *Uzavřené testování – Alpha*
